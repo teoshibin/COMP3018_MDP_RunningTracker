@@ -13,11 +13,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.SavedStateHandle;
-import androidx.lifecycle.ViewModel;
 
-import com.lucasteo.runningtracker.MainActivity;
 import com.lucasteo.runningtracker.model.RTRepository;
 import com.lucasteo.runningtracker.model.Track;
 import com.lucasteo.runningtracker.service.ICallback;
@@ -30,19 +26,29 @@ import java.util.List;
  */
 public class MainViewModel extends AndroidViewModel {
 
-    private RTRepository repository;
+    // debug log
+    private static final String TAG = "MainViewModel";
 
+    // repo
+    private RTRepository repository;
     private final LiveData<List<Track>> allTracks;
+
+    // service
     private TrackerService.TrackerServiceBinder trackerServiceBinder;
 
+    /**
+     * Main Activity ViewModel
+     *
+     * @param application application reference for retrieving repository
+     */
     public MainViewModel(@NonNull Application application) {
         super(application);
+        Log.d(TAG, "MainViewModel: Instantiated");
 
         // repo stuff
         repository = new RTRepository(application);
         allTracks = repository.getAllTracks();
 
-        Log.d("trackerService", "MainViewModel: ");
         // service stuff
 
         application.startService(
@@ -51,32 +57,13 @@ public class MainViewModel extends AndroidViewModel {
                 new Intent(application, TrackerService.class),
                 serviceConnection, Context.BIND_AUTO_CREATE);
 
-//        this.startService(new Intent(this, PlayerService.class));
-//        this.bindService(new Intent(this, PlayerService.class), serviceConnection, Context.BIND_AUTO_CREATE);
-    }
 
+        // this.startService(new Intent(this, PlayerService.class));
+        // this.bindService(new Intent(this, PlayerService.class), serviceConnection, Context.BIND_AUTO_CREATE);
+    }
 
     //region Tracker Service
     ICallback callback = new ICallback() {
-        @Override
-        public void TrackerServiceLocationChange(Location location) {
-
-        }
-
-        @Override
-        public void TrackerServiceStatusChange(String provider, int status, Bundle extras) {
-
-        }
-
-        @Override
-        public void TrackerServiceOnProviderEnabled(String provider) {
-
-        }
-
-        @Override
-        public void TrackerServiceOnProviderDisabled(String provider) {
-
-        }
 
         //        @Override
         //        public void playerProgressEvent(int progress) {
@@ -93,7 +80,7 @@ public class MainViewModel extends AndroidViewModel {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
-            Log.d("mainViewModel", "onServiceConnected: MainViewModel");
+            Log.d(TAG, "onServiceConnected: MainViewModel");
             trackerServiceBinder = (TrackerService.TrackerServiceBinder) binder;
             trackerServiceBinder.registerCallback(callback);
             // TODO do something on service connect
@@ -101,14 +88,12 @@ public class MainViewModel extends AndroidViewModel {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            Log.d("mainViewModel", "onServiceDisconnected: MainViewModel");
+            Log.d(TAG, "onServiceDisconnected: MainViewModel");
             trackerServiceBinder.unregisterCallback(callback);
             trackerServiceBinder = null;
         }
     };
     //endregion
-
-
 
     //region VM and Repo Interaction
     public void insert(Track track) {
@@ -119,7 +104,6 @@ public class MainViewModel extends AndroidViewModel {
         return allTracks;
     }
     //endregion
-
 
 //    // save state keys
 //    private final String SAVED_KEY_SHAPE = "shape";

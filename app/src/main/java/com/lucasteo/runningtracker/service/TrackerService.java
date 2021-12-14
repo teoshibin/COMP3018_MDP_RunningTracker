@@ -14,28 +14,45 @@ import android.os.RemoteCallbackList;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+
+import com.lucasteo.runningtracker.model.RTRepository;
+import com.lucasteo.runningtracker.model.Track;
+
+import java.util.List;
 
 public class TrackerService extends Service {
+
+    // debug log
+    private static final String TAG = "TrackerService";
 
     // notification
     private static final String NOTIFICATION_CHANNEL_ID = "trackerService";
     private static final int NOTIFICATION_ID = 1;
 
     // callbacks
-    RemoteCallbackList<TrackerServiceBinder> remoteCallbackList =
+    private RemoteCallbackList<TrackerServiceBinder> remoteCallbackList =
             new RemoteCallbackList<TrackerServiceBinder>();
 
     // main service
-    LocationManager locationManager;
-    TrackerLocationListener locationListener;
+    private RTRepository repository;
+    private LiveData<List<Track>> allTracks;
+    private LocationManager locationManager;
+    private TrackerLocationListener locationListener;
 
-    //region Life Cycle Methods
+    //region LIFE CYCLE METHODS
     //--------------------------------------------------------------------------------------------//
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d("trackerService", "onCreate: Tracker Service");
+        Log.d(TAG, "onCreate: Tracker Service");
+
+        // setup repository instance
+        repository = new RTRepository(getApplication());
+        allTracks = repository.getAllTracks();
+
+        // main job of this service
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         locationListener = new TrackerLocationListener();
 
@@ -45,13 +62,13 @@ public class TrackerService extends Service {
                     5, // minimum distance between updates, in metres
                     locationListener);
         } catch(SecurityException e) {
-            Log.d("trackerService", e.toString());
+            Log.d(TAG, e.toString());
         }
     }
 
     @Override
     public void onDestroy() {
-        Log.d("trackerService", "onDestroy: Tracker Service");
+        Log.d(TAG, "onDestroy: Tracker Service");
         locationManager.removeUpdates(locationListener);
         locationListener = null;
         locationManager = null;
@@ -61,26 +78,26 @@ public class TrackerService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d("trackerService", "onBind: Tracker Service");
+        Log.d(TAG, "onBind: Tracker Service");
         return new TrackerServiceBinder();
     }
 
     @Override
     public void onRebind(Intent intent) {
         super.onRebind(intent);
-        Log.d("trackerService", "onRebind: Tracker Service");
+        Log.d(TAG, "onRebind: Tracker Service");
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.d("trackerService", "onUnbind: Tracker Service");
+        Log.d(TAG, "onUnbind: Tracker Service");
         return super.onUnbind(intent);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // return super.onStartCommand(intent, flags, startId);
-        Log.d("trackerService", "onStartCommand: Tracker Service");
+        Log.d(TAG, "onStartCommand: Tracker Service");
         return Service.START_STICKY;
     }
 
@@ -95,23 +112,23 @@ public class TrackerService extends Service {
         // TODO do all the callbacks in here
         @Override
         public void onLocationChanged(Location location) {
-            Log.d("comp3018", location.getLatitude() + " " + location.getLongitude());
+            Log.d(TAG, location.getLatitude() + " " + location.getLongitude());
             // int distance = prevLocation.distanceTo(location);
         }
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
             // information about the signal, i.e. number of satellites
-            Log.d("comp3018", "onStatusChanged: " + provider + " " + status);
+            Log.d(TAG, "onStatusChanged: " + provider + " " + status);
         }
         @Override
         public void onProviderEnabled(String provider) {
             // the user enabled (for example) the GPS
-            Log.d("comp3018", "onProviderEnabled: " + provider);
+            Log.d(TAG, "onProviderEnabled: " + provider);
         }
         @Override
         public void onProviderDisabled(String provider) {
             // the user disabled (for example) the GPS
-            Log.d("comp3018", "onProviderDisabled: " + provider);
+            Log.d(TAG, "onProviderDisabled: " + provider);
         }
     }
 
@@ -166,12 +183,12 @@ public class TrackerService extends Service {
     }
 
     public void doCallbacks(int progress) {
-        final int n = remoteCallbackList.beginBroadcast();
-        for (int i=0; i<n; i++) {
-            remoteCallbackList.getBroadcastItem(i).callback.TrackerServiceLocationChange(null);
-            // TODO callback loops
-        }
-        remoteCallbackList.finishBroadcast();
+//        final int n = remoteCallbackList.beginBroadcast();
+//        for (int i=0; i<n; i++) {
+//            remoteCallbackList.getBroadcastItem(i).callback.TrackerServiceLocationChange(null);
+//            // TODO callback loops
+//        }
+//        remoteCallbackList.finishBroadcast();
     }
     //--------------------------------------------------------------------------------------------//
     //endregion

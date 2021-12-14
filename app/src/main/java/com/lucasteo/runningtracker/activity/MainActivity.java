@@ -1,4 +1,4 @@
-package com.lucasteo.runningtracker;
+package com.lucasteo.runningtracker.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -15,6 +15,7 @@ import android.location.LocationManager;
 import android.util.Log;
 import android.view.View;
 
+import com.lucasteo.runningtracker.R;
 import com.lucasteo.runningtracker.model.Track;
 import com.lucasteo.runningtracker.service.TrackerService;
 import com.lucasteo.runningtracker.viewHelper.TrackAdapter;
@@ -35,11 +36,6 @@ public class MainActivity extends AppCompatActivity {
                                 .AndroidViewModelFactory
                                 .getInstance(this.getApplication())
                 ).get(MainViewModel.class);
-
-//        model = new ViewModelProvider(this).get(MainViewModel.class);
-
-//        this.startService(new Intent(this, TrackerService.class));
-//        this.bindService(new Intent(this, TrackerService.class), serviceConnection, Context.BIND_AUTO_CREATE);
 
         // TODO request user permission
 
