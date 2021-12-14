@@ -8,12 +8,21 @@ import java.util.List;
 
 public class RTRepository {
 
+    // DAO
     private TrackDao trackDao;
+
+    // Data
     private LiveData<List<Track>> allTracks;
 
+    /**
+     * repository constructor
+     * initiate all data from db into repo using application as reference
+     * @param application reference to database
+     */
     public RTRepository(Application application) {
         RTRoomDatabase db = RTRoomDatabase.getDatabase(application);
 
+        // retrieving tracks
         trackDao = db.trackDao();
         allTracks = trackDao.getTracks();
 
