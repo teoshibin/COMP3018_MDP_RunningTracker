@@ -52,8 +52,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void btnOnClick(View view) {
-
-        viewModel.insert(new Track(3, 20));
-    }
+//    public void btnOnClick(View view) {
+//
+//        viewModel.insert(new Track(3, 20));
+//    }
 }

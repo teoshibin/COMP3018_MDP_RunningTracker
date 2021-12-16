@@ -50,7 +50,7 @@ public class MainViewModel extends AndroidViewModel {
         allTracks = repository.getAllTracks();
 
         // service stuff
-
+        // TODO enable and disable service by user
         application.startService(
                 new Intent(application, TrackerService.class));
         application.bindService(
