@@ -70,15 +70,8 @@ public class TrackerService extends Service {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationListener = new TrackerLocationListener();
 
-        if (
-                ActivityCompat.checkSelfPermission(
-                        this, Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(
-                        this, Manifest.permission.ACCESS_COARSE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED) {
-
-
+        // block service from continuing if permission is not granted, restart service later
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -86,39 +79,38 @@ public class TrackerService extends Service {
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
 
-            Log.d(TAG, "onCreate: Tracker Service Permission Not Granted");
-        } else {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                    5, // minimum time interval between updates
-                    5, // minimum distance between updates, in metres
-                    locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                5, // minimum time interval between updates
+                5, // minimum distance between updates, in metres
+                locationListener);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
-                        NOTIFICATION_CHANNEL_ID, NotificationManager.IMPORTANCE_DEFAULT);
-                channel.setSound(null, null);
-                channel.setShowBadge(false);
-                NotificationManager notificationManager = getSystemService(NotificationManager.class);
-                notificationManager.createNotificationChannel(channel);
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
+                    NOTIFICATION_CHANNEL_ID, NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setSound(null, null);
+            channel.setShowBadge(false);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
 
-            Intent notificationIntent = new Intent(this, MainActivity.class);
-            PendingIntent pendingIntent =
-                    PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent =
+                PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
-            Notification notification =
-                    new Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
-                            .setContentTitle(getText(R.string.notification_title))
+        Notification notification =
+                new Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
+                        .setContentTitle(getText(R.string.notification_title))
 //                        .setContentText(getText(R.string.notification_message))
 //                        .setSmallIcon(R.drawable.icon)
-                            .setContentIntent(pendingIntent)
+                        .setContentIntent(pendingIntent)
 //                        .setTicker(getText(R.string.ticker_text))
-                            .build();
+                        .build();
 
-            // Notification ID cannot be 0.
-            startForeground(NOTIFICATION_ID, notification);
-        }
+        // Notification ID cannot be 0.
+        startForeground(NOTIFICATION_ID, notification);
     }
 
     @Override
