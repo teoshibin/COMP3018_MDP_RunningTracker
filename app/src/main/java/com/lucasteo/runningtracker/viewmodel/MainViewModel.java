@@ -33,8 +33,6 @@ public class MainViewModel extends AndroidViewModel {
     private RTRepository repository;
     private final LiveData<List<Track>> allTracks;
 
-    // service
-    private TrackerService.TrackerServiceBinder trackerServiceBinder;
 
     /**
      * Main Activity ViewModel
@@ -49,51 +47,7 @@ public class MainViewModel extends AndroidViewModel {
         repository = new RTRepository(application);
         allTracks = repository.getAllTracks();
 
-        // service stuff
-        // TODO enable and disable service by user
-        application.startForegroundService(
-                new Intent(application, TrackerService.class));
-        application.bindService(
-                new Intent(application, TrackerService.class),
-                serviceConnection, Context.BIND_AUTO_CREATE);
-
-
-        // this.startService(new Intent(this, PlayerService.class));
-        // this.bindService(new Intent(this, PlayerService.class), serviceConnection, Context.BIND_AUTO_CREATE);
     }
-
-    //region Tracker Service
-    ICallback callback = new ICallback() {
-
-        //        @Override
-        //        public void playerProgressEvent(int progress) {
-        //            runOnUiThread(new Runnable() {
-        //                @Override
-        //                public void run() {
-        //                    displayProgress(myBinder.getProgress());
-        //                }
-        //            });
-        //        }
-    };
-
-    private ServiceConnection serviceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder binder) {
-            Log.d(TAG, "onServiceConnected: MainViewModel");
-            trackerServiceBinder = (TrackerService.TrackerServiceBinder) binder;
-            trackerServiceBinder.registerCallback(callback);
-            // TODO do something on service connect
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.d(TAG, "onServiceDisconnected: MainViewModel");
-            trackerServiceBinder.unregisterCallback(callback);
-            trackerServiceBinder = null;
-        }
-    };
-    //endregion
 
     //region VM and Repo Interaction
     public void insert(Track track) {

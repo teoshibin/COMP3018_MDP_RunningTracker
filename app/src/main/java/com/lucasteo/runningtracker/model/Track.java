@@ -18,13 +18,6 @@ public class Track {
 //    @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
 //    private String lastModifiedTime;
 
-
-    /**
-     * track table constructor
-     *
-     * @param trackID unique ID
-     * @param distance integer
-     */
     public Track(int trackID, int distance) {
         this.trackID = trackID;
         this.distance = distance;
