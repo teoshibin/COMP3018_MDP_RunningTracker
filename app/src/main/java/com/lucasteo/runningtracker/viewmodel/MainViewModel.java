@@ -51,7 +51,7 @@ public class MainViewModel extends AndroidViewModel {
 
         // service stuff
         // TODO enable and disable service by user
-        application.startService(
+        application.startForegroundService(
                 new Intent(application, TrackerService.class));
         application.bindService(
                 new Intent(application, TrackerService.class),

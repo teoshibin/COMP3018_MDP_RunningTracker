@@ -12,7 +12,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Track.class}, version = 1, exportSchema = false) // drop and recreat
+@Database(entities = {Track.class}, version = 2, exportSchema = false) // drop and recreat
 public abstract class RTRoomDatabase extends RoomDatabase {
 
     public abstract TrackDao trackDao();

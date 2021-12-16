@@ -8,14 +8,24 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "track_table")
 public class Track {
 
-    @PrimaryKey
-    @NonNull
-    @ColumnInfo(name = "trackID")
+    @PrimaryKey(autoGenerate = true)
     private int trackID;
-
+    @ColumnInfo(defaultValue = "0")
     private int distance;
+//    private int calculatedSteps;
+//    @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
+//    private String createdTime;
+//    @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
+//    private String lastModifiedTime;
 
-    public Track(@NonNull int trackID, int distance) {
+
+    /**
+     * track table constructor
+     *
+     * @param trackID unique ID
+     * @param distance integer
+     */
+    public Track(int trackID, int distance) {
         this.trackID = trackID;
         this.distance = distance;
     }
@@ -23,8 +33,13 @@ public class Track {
     public int getTrackID() {
         return trackID;
     }
-
     public int getDistance() {
         return distance;
     }
+//    public String getCreatedTime() {
+//        return createdTime;
+//    }
+//    public String getLastModifiedTime() {
+//        return lastModifiedTime;
+//    }
 }
