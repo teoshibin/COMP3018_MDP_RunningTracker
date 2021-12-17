@@ -39,9 +39,6 @@ public class MainActivity extends AppCompatActivity {
     // log
     private final String TAG = "MainActivity";
 
-    // service
-    private TrackerService.TrackerServiceBinder trackerServiceBinder;
-
     // permissions
     int PERMISSION_ALL = 1;
     String[] PERMISSIONS = {
@@ -51,8 +48,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     // UI Components
-    Button mainBtn;
-    ActionBar actionBar;
+//    Button mainBtn;
     BottomNavigationView bottomNavigationView;
 
     // main
@@ -81,8 +77,7 @@ public class MainActivity extends AppCompatActivity {
         requestPermission();
 
         // Find UI Components
-        mainBtn = findViewById(R.id.button);
-        actionBar = this.getSupportActionBar();
+//        mainBtn = findViewById(R.id.button);
 
         // bottom navigation menu and navigation
         bottomNavigationView = findViewById(R.id.bottomNav);
@@ -97,57 +92,58 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void btnOnClick(View view) {
+//    public void btnOnClick(View view) {
+//
+//        // switch button display text and controlling service
+//        if(requestPermission()){
+//            if(serviceStarted){
+//                mainBtn.setText(R.string.btnStart);
+//                StopTrackerService();
+//            } else {
+//                mainBtn.setText(R.string.btnStop);
+//                startTrackerService();
+//            }
+//            serviceStarted = !serviceStarted;
+//        }
+//    }
 
-        // switch button display text and controlling service
-        if(requestPermission()){
-            if(serviceStarted){
-                mainBtn.setText(R.string.btnStart);
-                StopTrackerService();
-            } else {
-                mainBtn.setText(R.string.btnStop);
-                startTrackerService();
-            }
-            serviceStarted = !serviceStarted;
-        }
-    }
     //--------------------------------------------------------------------------------------------//
     //endregion
 
     //region Tracker Service
     //--------------------------------------------------------------------------------------------//
 
-    private void startTrackerService(){
-        this.startForegroundService(new Intent(this, TrackerService.class));
-        this.bindService(new Intent(this, TrackerService.class),
-                serviceConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    private void StopTrackerService(){
-        trackerServiceBinder.stopTrackerService();
-    }
-
-    ICallback callback = new ICallback() {
-        // to use this remember to use runOnUiThread new Runnable()
-    };
-
-    private final ServiceConnection serviceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder binder) {
-            Log.d(TAG, "onServiceConnected: MainActivity");
-            trackerServiceBinder = (TrackerService.TrackerServiceBinder) binder;
-            trackerServiceBinder.registerCallback(callback);
-            // TODO do something on service connect
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.d(TAG, "onServiceDisconnected: MainActivity");
-            trackerServiceBinder.unregisterCallback(callback);
-            trackerServiceBinder = null;
-        }
-    };
+//    private void startTrackerService(){
+//        this.startForegroundService(new Intent(this, TrackerService.class));
+//        this.bindService(new Intent(this, TrackerService.class),
+//                serviceConnection, Context.BIND_AUTO_CREATE);
+//    }
+//
+//    private void StopTrackerService(){
+//        trackerServiceBinder.stopTrackerService();
+//    }
+//
+//    ICallback callback = new ICallback() {
+//        // to use this remember to use runOnUiThread new Runnable()
+//    };
+//
+//    private final ServiceConnection serviceConnection = new ServiceConnection() {
+//
+//        @Override
+//        public void onServiceConnected(ComponentName name, IBinder binder) {
+//            Log.d(TAG, "onServiceConnected: MainActivity");
+//            trackerServiceBinder = (TrackerService.TrackerServiceBinder) binder;
+//            trackerServiceBinder.registerCallback(callback);
+//            // TODO do something on service connect
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName name) {
+//            Log.d(TAG, "onServiceDisconnected: MainActivity");
+//            trackerServiceBinder.unregisterCallback(callback);
+//            trackerServiceBinder = null;
+//        }
+//    };
     //--------------------------------------------------------------------------------------------//
     //endregion
 

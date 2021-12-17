@@ -61,6 +61,7 @@ public class TrackerService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate: Tracker Service");
+
         // TODO fix service not continuing after minimizing task
         // setup repository instance
         repository = new RTRepository(getApplication());
@@ -72,13 +73,7 @@ public class TrackerService extends Service {
 
         // block service from continuing if permission is not granted, restart service later
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+            // all permissions are all requested at once at the beginning of the app start in MainActivity
             return;
         }
 
@@ -267,10 +262,6 @@ public class TrackerService extends Service {
     }
 
     //--------------------------------------------------------------------------------------------//
-    //endregion
-
-    //region PERMISSION
-
     //endregion
 
 }
