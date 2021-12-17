@@ -75,13 +75,12 @@ public class TrackerService extends Service {
         // return super.onStartCommand(intent, flags, startId);
         Log.d(TAG, "onStartCommand: Tracker Service");
 
-        // TODO fix service not continuing after minimizing task
-
         // setup repository instance
         repository = new RTRepository(getApplication());
         allTracks = repository.getAllTracks();
 
         // main job of this service
+        // TODO fix location Manager not continue listening after minimizing task (google limited this)
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationListener = new TrackerLocationListener();
 
@@ -153,7 +152,6 @@ public class TrackerService extends Service {
 
     public class TrackerLocationListener implements LocationListener {
 
-        // TODO do all the callbacks in here
         @Override
         public void onLocationChanged(Location location) {
 
@@ -228,11 +226,11 @@ public class TrackerService extends Service {
         ICallback callback;
     }
 
+    // callback loops
     public void doCallbacks(int progress) {
 //        final int n = remoteCallbackList.beginBroadcast();
 //        for (int i=0; i<n; i++) {
 //            remoteCallbackList.getBroadcastItem(i).callback.TrackerServiceLocationChange(null);
-//            // TODO callback loops
 //        }
 //        remoteCallbackList.finishBroadcast();
     }

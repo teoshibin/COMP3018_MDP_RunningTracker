@@ -82,7 +82,6 @@ public class MainViewModel extends AndroidViewModel {
             Log.d(TAG, "onServiceConnected: MainActivity");
             trackerServiceBinder = (TrackerService.TrackerServiceBinder) binder;
             trackerServiceBinder.registerCallback(callback);
-            // TODO do something on service connect
         }
 
         @Override

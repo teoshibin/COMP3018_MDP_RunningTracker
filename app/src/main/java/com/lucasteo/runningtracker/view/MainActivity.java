@@ -91,43 +91,6 @@ public class MainActivity extends AppCompatActivity {
     //--------------------------------------------------------------------------------------------//
     //endregion
 
-    //region Tracker Service
-    //--------------------------------------------------------------------------------------------//
-
-//    private void startTrackerService(){
-//        this.startForegroundService(new Intent(this, TrackerService.class));
-//        this.bindService(new Intent(this, TrackerService.class),
-//                serviceConnection, Context.BIND_AUTO_CREATE);
-//    }
-//
-//    private void StopTrackerService(){
-//        trackerServiceBinder.stopTrackerService();
-//    }
-//
-//    ICallback callback = new ICallback() {
-//        // to use this remember to use runOnUiThread new Runnable()
-//    };
-//
-//    private final ServiceConnection serviceConnection = new ServiceConnection() {
-//
-//        @Override
-//        public void onServiceConnected(ComponentName name, IBinder binder) {
-//            Log.d(TAG, "onServiceConnected: MainActivity");
-//            trackerServiceBinder = (TrackerService.TrackerServiceBinder) binder;
-//            trackerServiceBinder.registerCallback(callback);
-//            // TODO do something on service connect
-//        }
-//
-//        @Override
-//        public void onServiceDisconnected(ComponentName name) {
-//            Log.d(TAG, "onServiceDisconnected: MainActivity");
-//            trackerServiceBinder.unregisterCallback(callback);
-//            trackerServiceBinder = null;
-//        }
-//    };
-    //--------------------------------------------------------------------------------------------//
-    //endregion
-
     //region PERMISSIONS
     //--------------------------------------------------------------------------------------------//
 

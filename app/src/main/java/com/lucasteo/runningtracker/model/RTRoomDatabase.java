@@ -53,10 +53,6 @@ public abstract class RTRoomDatabase extends RoomDatabase {
                 TrackDao trackDao = INSTANCE.trackDao();
                 trackDao.deleteAll();
 
-//                // TODO dynamic ID
-//                Track track = new Track(0,0, 0);
-//                trackDao.insert(track);
-
             });
         }
     };
