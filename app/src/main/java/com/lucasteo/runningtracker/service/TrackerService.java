@@ -19,9 +19,11 @@ import android.os.IBinder;
 import android.os.IInterface;
 import android.os.RemoteCallbackList;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.lifecycle.LiveData;
 
 import com.lucasteo.runningtracker.R;
@@ -40,6 +42,7 @@ public class TrackerService extends Service {
     // notification
     private static final String NOTIFICATION_CHANNEL_ID = "trackerService";
     private static final int NOTIFICATION_ID = 1;
+    private NotificationManager notificationManager;
 
     // callbacks
     private RemoteCallbackList<TrackerServiceBinder> remoteCallbackList =
@@ -50,9 +53,11 @@ public class TrackerService extends Service {
     private LiveData<List<Track>> allTracks;
     private LocationManager locationManager;
     private TrackerLocationListener locationListener;
-    private double distance = 0;
-    private Location prevLocation;
     private boolean justStarted = true;
+
+    // location calculation
+    private Location prevLocation;
+    private double distance = 0;
 
     //region LIFE CYCLE METHODS
     //--------------------------------------------------------------------------------------------//
@@ -62,7 +67,16 @@ public class TrackerService extends Service {
         super.onCreate();
         Log.d(TAG, "onCreate: Tracker Service");
 
+        notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        // return super.onStartCommand(intent, flags, startId);
+        Log.d(TAG, "onStartCommand: Tracker Service");
+
         // TODO fix service not continuing after minimizing task
+
         // setup repository instance
         repository = new RTRepository(getApplication());
         allTracks = repository.getAllTracks();
@@ -74,7 +88,7 @@ public class TrackerService extends Service {
         // block service from continuing if permission is not granted, restart service later
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // all permissions are all requested at once at the beginning of the app start in MainActivity
-            return;
+            return Service.START_STICKY;
         }
 
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
@@ -82,36 +96,7 @@ public class TrackerService extends Service {
                 5, // minimum distance between updates, in metres
                 locationListener);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
-                    NOTIFICATION_CHANNEL_ID, NotificationManager.IMPORTANCE_DEFAULT);
-            channel.setSound(null, null);
-            channel.setShowBadge(false);
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent =
-                PendingIntent.getActivity(this, 0, notificationIntent, 0);
-
-        Notification notification =
-                new Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
-                        .setContentTitle(getText(R.string.notification_title))
-//                        .setContentText(getText(R.string.notification_message))
-//                        .setSmallIcon(R.drawable.icon)
-                        .setContentIntent(pendingIntent)
-//                        .setTicker(getText(R.string.ticker_text))
-                        .build();
-
-        // Notification ID cannot be 0.
-        startForeground(NOTIFICATION_ID, notification);
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        // return super.onStartCommand(intent, flags, startId);
-        Log.d(TAG, "onStartCommand: Tracker Service");
+        createNotification();
 
         return Service.START_STICKY;
     }
@@ -119,9 +104,7 @@ public class TrackerService extends Service {
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy: Tracker Service");
-        locationManager.removeUpdates(locationListener);
-        locationListener = null;
-        locationManager = null;
+        removeNotification();
         super.onDestroy();
     }
 
@@ -255,13 +238,57 @@ public class TrackerService extends Service {
     }
 
     public void stopService(){
-        locationManager.removeUpdates(locationListener);
+        if(locationManager != null){
+            locationManager.removeUpdates(locationListener);
+        }
         locationListener = null;
         locationManager = null;
+        removeNotification();
         stopSelf();
     }
 
     //--------------------------------------------------------------------------------------------//
+    //endregion
+
+    //region NOTIFICATIONS
+    public void createNotification(){
+
+        // create channel if version >= oreo
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
+                    NOTIFICATION_CHANNEL_ID, NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setSound(null, null);
+            channel.setShowBadge(false);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent =
+                PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
+        CharSequence text = getText(R.string.notification_text);
+
+        Notification notification =
+                new Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
+                        .setSmallIcon(R.drawable.ic_baseline_directions_run_24)
+                        .setTicker(text) // a small line of text on top of the screen
+                        .setContentTitle(getText(R.string.notification_title))
+                        .setContentText(text)
+                        .setContentIntent(pendingIntent)
+                        .build();
+
+        // Notification ID cannot be 0.
+        startForeground(NOTIFICATION_ID, notification);
+//        notificationManager.notify(NOTIFICATION_ID, notification);
+    }
+
+    public void removeNotification(){
+//        NotificationManagerCompat managerCompat = NotificationManagerCompat.from(TrackerService.this);
+//        managerCompat.cancelAll();
+//        notificationManager.cancel(NOTIFICATION_ID);
+        stopForeground(true);
+    }
     //endregion
 
 }

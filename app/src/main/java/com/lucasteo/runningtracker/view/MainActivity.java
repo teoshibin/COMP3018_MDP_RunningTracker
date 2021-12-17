@@ -48,7 +48,6 @@ public class MainActivity extends AppCompatActivity {
     };
 
     // UI Components
-//    Button mainBtn;
     BottomNavigationView bottomNavigationView;
 
     // main
@@ -76,9 +75,6 @@ public class MainActivity extends AppCompatActivity {
         // request permission if needed
         requestPermission();
 
-        // Find UI Components
-//        mainBtn = findViewById(R.id.button);
-
         // bottom navigation menu and navigation
         bottomNavigationView = findViewById(R.id.bottomNav);
         NavHostFragment navHostFragment =
@@ -91,21 +87,6 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
     }
-
-//    public void btnOnClick(View view) {
-//
-//        // switch button display text and controlling service
-//        if(requestPermission()){
-//            if(serviceStarted){
-//                mainBtn.setText(R.string.btnStart);
-//                StopTrackerService();
-//            } else {
-//                mainBtn.setText(R.string.btnStop);
-//                startTrackerService();
-//            }
-//            serviceStarted = !serviceStarted;
-//        }
-//    }
 
     //--------------------------------------------------------------------------------------------//
     //endregion
