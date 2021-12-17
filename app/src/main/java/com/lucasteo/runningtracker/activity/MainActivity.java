@@ -89,19 +89,10 @@ public class MainActivity extends AppCompatActivity {
         mainBtn = findViewById(R.id.button);
         actionBar = this.getSupportActionBar();
 
-        // Load UI
-//        RecyclerView recyclerView = findViewById(R.id.itemList);
-//        final TrackAdapter adapter = new TrackAdapter(this);
-//        recyclerView.setAdapter(adapter);
-//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-//        viewModel.getAllTracks().observe(this, tracks -> {
-//            adapter.setData(tracks);
-//        });
-
         // bottom navigation menu and navigation
         bottomNavigationView = findViewById(R.id.bottomNav);
         NavHostFragment navHostFragment =
-                (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView2);
+                (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
         NavController navController = navHostFragment.getNavController();
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
 

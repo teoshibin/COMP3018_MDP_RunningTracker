@@ -2,22 +2,26 @@ package com.lucasteo.runningtracker;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.lucasteo.runningtracker.activity.MainActivity;
+import com.lucasteo.runningtracker.viewHelper.TrackAdapter;
 import com.lucasteo.runningtracker.viewmodel.MainViewModel;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link home#newInstance} factory method to
+ * Use the {@link StatsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class home extends Fragment {
+public class StatsFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -28,7 +32,9 @@ public class home extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public home() {
+    private MainViewModel viewModel;
+
+    public StatsFragment() {
         // Required empty public constructor
     }
 
@@ -38,11 +44,11 @@ public class home extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment home.
+     * @return A new instance of fragment stats.
      */
     // TODO: Rename and change types and number of parameters
-    public static home newInstance(String param1, String param2) {
-        home fragment = new home();
+    public static StatsFragment newInstance(String param1, String param2) {
+        StatsFragment fragment = new StatsFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -57,20 +63,33 @@ public class home extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        viewModel =
+                new ViewModelProvider(getActivity(),
+                        ViewModelProvider
+                                .AndroidViewModelFactory
+                                .getInstance(getActivity().getApplication())
+                ).get(MainViewModel.class);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-//        viewModel =
-//                new ViewModelProvider(MainActivity.class,
-//                        ViewModelProvider
-//                                .AndroidViewModelFactory
-//                                .getInstance(this.getApplication())
-//                ).get(MainViewModel.class);
-
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        return inflater.inflate(R.layout.fragment_stats, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Load UI
+        RecyclerView recyclerView = getView().findViewById(R.id.itemList);
+        final TrackAdapter adapter = new TrackAdapter(getActivity());
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        viewModel.getAllTracks().observe(getActivity(), tracks -> {
+            adapter.setData(tracks);
+        });
     }
 }
