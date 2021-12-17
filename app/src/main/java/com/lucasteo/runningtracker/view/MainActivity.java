@@ -29,10 +29,15 @@ import com.lucasteo.runningtracker.service.ICallback;
 import com.lucasteo.runningtracker.service.TrackerService;
 import com.lucasteo.runningtracker.viewmodel.MainViewModel;
 
+import java.util.Objects;
+
 public class MainActivity extends AppCompatActivity {
 
+    //region VARIABLES
+    //--------------------------------------------------------------------------------------------//
+
     // log
-    private String TAG = "MainActivity";
+    private final String TAG = "MainActivity";
 
     // service
     private TrackerService.TrackerServiceBinder trackerServiceBinder;
@@ -45,15 +50,20 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.ACCESS_COARSE_LOCATION
     };
 
-    // main
-    private MainViewModel viewModel;
-    private boolean serviceStarted = false;
-
     // UI Components
     Button mainBtn;
     ActionBar actionBar;
     BottomNavigationView bottomNavigationView;
 
+    // main
+    private MainViewModel viewModel;
+    private boolean serviceStarted = false;
+
+    //--------------------------------------------------------------------------------------------//
+    //endregion
+
+    //region LIFE CYCLE & EVENT
+    //--------------------------------------------------------------------------------------------//
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,37 +88,30 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottomNav);
         NavHostFragment navHostFragment =
                 (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
-        NavController navController = navHostFragment.getNavController();
+        NavController navController = Objects.requireNonNull(navHostFragment).getNavController();
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
 
         // action bar name sync with fragment names
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(R.id.home2, R.id.stats).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
-
-//        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-//        actionBar.setCustomView(R.layout.abs_layout);
-
-
-
     }
 
     public void btnOnClick(View view) {
 
+        // switch button display text and controlling service
         if(requestPermission()){
             if(serviceStarted){
-                mainBtn.setText("Start");
+                mainBtn.setText(R.string.btnStart);
                 StopTrackerService();
             } else {
-                mainBtn.setText("Stop");
+                mainBtn.setText(R.string.btnStop);
                 startTrackerService();
             }
             serviceStarted = !serviceStarted;
         }
     }
-
-    //region VIEWMODEL
-
+    //--------------------------------------------------------------------------------------------//
     //endregion
 
     //region Tracker Service
@@ -125,19 +128,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     ICallback callback = new ICallback() {
-
-        //        @Override
-        //        public void playerProgressEvent(int progress) {
-        //            runOnUiThread(new Runnable() {
-        //                @Override
-        //                public void run() {
-        //                    displayProgress(myBinder.getProgress());
-        //                }
-        //            });
-        //        }
+        // to use this remember to use runOnUiThread new Runnable()
     };
 
-    private ServiceConnection serviceConnection = new ServiceConnection() {
+    private final ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
@@ -154,7 +148,6 @@ public class MainActivity extends AppCompatActivity {
             trackerServiceBinder = null;
         }
     };
-
     //--------------------------------------------------------------------------------------------//
     //endregion
 
@@ -165,22 +158,22 @@ public class MainActivity extends AppCompatActivity {
 
         boolean allGranted = true;
 
-        if (!hasPermissions(this, PERMISSIONS)) {
+        if (noPermissions(this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
             allGranted = false;
         }
         return allGranted;
     }
 
-    public static boolean hasPermissions(Context context, String... permissions) {
+    public static boolean noPermissions(Context context, String... permissions) {
         if (context != null && permissions != null) {
             for (String permission : permissions) {
                 if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
-                    return false;
+                    return true;
                 }
             }
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -188,15 +181,15 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         // making sure every permission is granted
-        boolean allGranted = true;
-        if(!hasPermissions(this, PERMISSIONS)){
-            allGranted = false;
-        }
+//        boolean allGranted = true;
+//        if(!hasPermissions(this, PERMISSIONS)){
+//            allGranted = false;
+//        }
 
-        // start service if all permission is granted
-        if(allGranted = true){
-            startTrackerService();
-        }
+//        // start service if all permission is granted
+//        if(allGranted = true){
+//            startTrackerService();
+//        }
     }
 
     //--------------------------------------------------------------------------------------------//
