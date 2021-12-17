@@ -1,6 +1,7 @@
 package com.lucasteo.runningtracker.activity;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -23,6 +24,7 @@ import android.location.LocationManager;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.lucasteo.runningtracker.R;
@@ -31,6 +33,9 @@ import com.lucasteo.runningtracker.service.ICallback;
 import com.lucasteo.runningtracker.service.TrackerService;
 import com.lucasteo.runningtracker.viewHelper.TrackAdapter;
 import com.lucasteo.runningtracker.viewmodel.MainViewModel;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -50,7 +55,11 @@ public class MainActivity extends AppCompatActivity {
 
     // main
     private MainViewModel viewModel;
-    private int temp =0;
+    private boolean serviceStarted = false;
+
+    // UI Components
+    Button mainBtn;
+    ActionBar actionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,34 +75,53 @@ public class MainActivity extends AppCompatActivity {
                 ).get(MainViewModel.class);
 
         // request permission if needed
-        if(requestPermission()){
-            startTrackerService();
-        }
+        requestPermission();
 
-        // read table
+        // Find UI Components
+        mainBtn = findViewById(R.id.button);
+        actionBar = this.getSupportActionBar();
+
+        // Load UI
         RecyclerView recyclerView = findViewById(R.id.itemList);
         final TrackAdapter adapter = new TrackAdapter(this);
-
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
         viewModel.getAllTracks().observe(this, tracks -> {
             adapter.setData(tracks);
         });
+
+//        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+//        actionBar.setCustomView(R.layout.abs_layout);
+
+
+
     }
 
     public void btnOnClick(View view) {
-        viewModel.insert(new Track(0, temp));
-        temp += 1;
+
+        if(requestPermission()){
+            if(serviceStarted){
+                mainBtn.setText("Start");
+                StopTrackerService();
+            } else {
+                mainBtn.setText("Stop");
+                startTrackerService();
+            }
+            serviceStarted = !serviceStarted;
+        }
     }
 
     //region Tracker Service
     //--------------------------------------------------------------------------------------------//
 
     private void startTrackerService(){
-        this.startService(new Intent(this, TrackerService.class));
+        this.startForegroundService(new Intent(this, TrackerService.class));
         this.bindService(new Intent(this, TrackerService.class),
                 serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    private void StopTrackerService(){
+        trackerServiceBinder.stopTrackerService();
     }
 
     ICallback callback = new ICallback() {

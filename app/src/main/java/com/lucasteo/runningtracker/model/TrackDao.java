@@ -12,11 +12,8 @@ import java.util.List;
 @Dao
 public interface TrackDao {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Track track);
-
-//    @Update
-//    void update(Track track);
 
     @Query("DELETE FROM track_table")
     void deleteAll();

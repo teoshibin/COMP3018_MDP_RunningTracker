@@ -3,6 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/user/Documents/GitHub/runningtracker/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.23148148148148148" />
+        <entry key="..\:/Users/user/Documents/GitHub/runningtracker/app/src/main/res/drawable/ic_launcher_background.xml" value="0.23148148148148148" />
+        <entry key="..\:/Users/user/Documents/GitHub/runningtracker/app/src/main/res/layout/abs_layout.xml" value="0.2726449275362319" />
         <entry key="..\:/Users/user/Documents/GitHub/runningtracker/app/src/main/res/layout/activity_main.xml" value="0.264" />
         <entry key="..\:/Users/user/Documents/GitHub/runningtracker/app/src/main/res/layout/db_layout_view.xml" value="0.25" />
       </map>

@@ -31,6 +31,7 @@ import com.lucasteo.runningtracker.activity.MainActivity;
 import com.lucasteo.runningtracker.model.RTRepository;
 import com.lucasteo.runningtracker.model.Track;
 
+import java.util.Date;
 import java.util.List;
 
 public class TrackerService extends Service {
@@ -53,6 +54,7 @@ public class TrackerService extends Service {
     private TrackerLocationListener locationListener;
     private double distance = 0;
     private Location prevLocation;
+    private boolean justStarted = true;
 
     //region LIFE CYCLE METHODS
     //--------------------------------------------------------------------------------------------//
@@ -83,7 +85,7 @@ public class TrackerService extends Service {
         }
 
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                5, // minimum time interval between updates
+                1, // minimum time interval between updates
                 5, // minimum distance between updates, in metres
                 locationListener);
 
@@ -178,12 +180,35 @@ public class TrackerService extends Service {
         // TODO do all the callbacks in here
         @Override
         public void onLocationChanged(Location location) {
-            Log.d(TAG, "onLocationChanged: ( Latitude: " + location.getLatitude()
-                    + " Longitude: " + location.getLongitude() + " )");
-            if (prevLocation != null){
-                distance = prevLocation.distanceTo(location);
+
+            // ignore calculation and data storing for the first location
+            if(!justStarted){
+                if (prevLocation != null){
+                    distance = prevLocation.distanceTo(location);
+                }
+                Log.d(TAG, "onLocationChanged: \n" +
+                        "\tLatitude: " + location.getLatitude() + "\n" +
+                        "\tLongitude: " + location.getLongitude() + "\n" +
+                        "\tDistance: " + distance + "\n" +
+                        "\tAltitude: " + location.getAltitude() + "\n" +
+                        "\tSpeed (m/s): " + location.getSpeed() + "\n"
+                );
+                repository.insert(
+                        new Track(
+                                0,
+                                location.getLatitude(),
+                                location.getLongitude(),
+                                distance,
+                                location.getAltitude(),
+                                location.getSpeed(),
+                                new Date()
+                        )
+                );
+            } else {
+                justStarted = false;
             }
-            prevLocation = location;
+            prevLocation = location; // init or continue storing previous location
+
         }
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -208,36 +233,11 @@ public class TrackerService extends Service {
             return this;
         }
 
-
         // interact with service through binder
 
-//        public MP3PlayerState getState(){
-//            return PlayerService.this.getState();
-//        }
-//        public void load(String uri){
-//            PlayerService.this.load(uri);
-//        }
-//        public String getFilePath(){
-//            return PlayerService.this.getFilePath();
-//        }
-//        public int getProgress(){
-//            return PlayerService.this.getProgress();
-//        }
-//        public int getDuration(){
-//            return PlayerService.this.getDuration();
-//        }
-//        public void play(){
-//            PlayerService.this.play();
-//        }
-//        public void pause(){
-//            PlayerService.this.pause();
-//        }
-//        public void stop(){
-//            PlayerService.this.stop();
-//        }
-//        public void setSeekTo(int progress){
-//            PlayerService.this.setSeekTo(progress);
-//        }
+        public void stopTrackerService(){
+            stopService();
+        }
 
         // callback methods
         public void registerCallback(ICallback callback) {
@@ -260,6 +260,14 @@ public class TrackerService extends Service {
 //        }
 //        remoteCallbackList.finishBroadcast();
     }
+
+    public void stopService(){
+        locationManager.removeUpdates(locationListener);
+        locationListener = null;
+        locationManager = null;
+        stopSelf();
+    }
+
     //--------------------------------------------------------------------------------------------//
     //endregion
 
