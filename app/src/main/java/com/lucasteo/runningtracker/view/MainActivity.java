@@ -1,48 +1,33 @@
-package com.lucasteo.runningtracker.activity;
+package com.lucasteo.runningtracker.view;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.content.ComponentName;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import android.content.Context;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.lucasteo.runningtracker.R;
-import com.lucasteo.runningtracker.model.Track;
 import com.lucasteo.runningtracker.service.ICallback;
 import com.lucasteo.runningtracker.service.TrackerService;
-import com.lucasteo.runningtracker.viewHelper.TrackAdapter;
 import com.lucasteo.runningtracker.viewmodel.MainViewModel;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 

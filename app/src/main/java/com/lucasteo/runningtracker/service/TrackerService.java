@@ -7,7 +7,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -22,12 +21,11 @@ import android.os.RemoteCallbackList;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.LiveData;
 
 import com.lucasteo.runningtracker.R;
-import com.lucasteo.runningtracker.activity.MainActivity;
+import com.lucasteo.runningtracker.view.MainActivity;
 import com.lucasteo.runningtracker.model.RTRepository;
 import com.lucasteo.runningtracker.model.Track;
 

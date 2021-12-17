@@ -6,12 +6,12 @@
     app:startDestination="@id/home2">
     <fragment
         android:id="@+id/home2"
-        android:name="com.lucasteo.runningtracker.HomeFragment"
+        android:name="com.lucasteo.runningtracker.view.HomeFragment"
         android:label="Tracker"
         tools:layout="@layout/fragment_home" />
     <fragment
         android:id="@+id/stats"
-        android:name="com.lucasteo.runningtracker.StatsFragment"
+        android:name="com.lucasteo.runningtracker.view.StatsFragment"
         android:label="Stats"
         tools:layout="@layout/fragment_stats" />
 </navigation>
