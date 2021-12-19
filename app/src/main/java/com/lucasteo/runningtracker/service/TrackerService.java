@@ -281,7 +281,7 @@ public class TrackerService extends Service {
     }
 
     private boolean isRunning(){
-        return status == Status.RUNNING;
+        return ((status == Status.RUNNING) || (status == Status.JUST_STARTED));
     }
 
     //--------------------------------------------------------------------------------------------//

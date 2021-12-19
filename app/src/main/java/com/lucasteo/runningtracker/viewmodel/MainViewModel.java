@@ -28,6 +28,7 @@ public class MainViewModel extends AndroidViewModel {
 
     //region VARIABLES
     //--------------------------------------------------------------------------------------------//
+
     // save instance state
     SavedStateHandle savedState;
 
@@ -36,9 +37,6 @@ public class MainViewModel extends AndroidViewModel {
 
     // save instance state value keys
     private static final String SAVED_KEY_SERVICE_STARTED = "serviceStarted";
-
-    // service
-    private TrackerService.TrackerServiceBinder trackerServiceBinder;
 
     // repo
     private RTRepository repository;
@@ -52,6 +50,7 @@ public class MainViewModel extends AndroidViewModel {
 
     //region MAIN CONSTRUCTOR AND METHODS
     //--------------------------------------------------------------------------------------------//
+
     public MainViewModel(@NonNull Application application, SavedStateHandle savedStateHandle) {
         super(application);
         Log.d(TAG, "MainViewModel: Instantiated");
@@ -71,69 +70,19 @@ public class MainViewModel extends AndroidViewModel {
         repository = new RTRepository(application);
         allTracks = repository.getAllTracks();
 
-//        startTrackerService();
     }
 
     public void toggleServiceStatus(){
         boolean value = serviceStatus.getValue() != null ? serviceStatus.getValue() : false;
-//        if(value){
-//            stopTrackerService();
-//        } else {
-//            startTrackerService();
-//        }
         setValueServiceStatus(!value);
     }
-    //--------------------------------------------------------------------------------------------//
-    //endregion
 
-    //region SERVICE
-    //--------------------------------------------------------------------------------------------//
-//    private void startTrackerService(){
-//        // normal code to start service in activity
-//        // this.startForegroundService(new Intent(this, TrackerService.class));
-//        // this.bindService(new Intent(this, TrackerService.class),
-//        //         serviceConnection, Context.BIND_AUTO_CREATE);
-//
-//        // start service in view model
-//        Application applicationRef = getApplication();
-//
-//        applicationRef.startForegroundService(
-//                new Intent(applicationRef, TrackerService.class));
-//        applicationRef.bindService(
-//                new Intent(applicationRef, TrackerService.class),
-//                serviceConnection, Context.BIND_AUTO_CREATE);
-//    }
-//
-//    private void stopTrackerService(){
-//        trackerServiceBinder.stopTrackerService();
-//    }
-//
-//    ICallback callback = new ICallback() {
-//        // to use this remember to use runOnUiThread new Runnable()
-//    };
-//
-//    private final ServiceConnection serviceConnection = new ServiceConnection() {
-//
-//        @Override
-//        public void onServiceConnected(ComponentName name, IBinder binder) {
-//            Log.d(TAG, "onServiceConnected: MainViewModel");
-//            trackerServiceBinder = (TrackerService.TrackerServiceBinder) binder;
-//            trackerServiceBinder.registerCallback(callback);
-//            setValueServiceStatus(true); // as service existed change status to started
-//        }
-//
-//        @Override
-//        public void onServiceDisconnected(ComponentName name) {
-//            Log.d(TAG, "onServiceDisconnected: MainActivity");
-//            trackerServiceBinder.unregisterCallback(callback);
-//            trackerServiceBinder = null;
-//        }
-//    };
     //--------------------------------------------------------------------------------------------//
     //endregion
 
     //region VM and Repo Interaction
     //--------------------------------------------------------------------------------------------//
+
     public void insert(Track track) {
         repository.insert(track);
     }
@@ -141,14 +90,17 @@ public class MainViewModel extends AndroidViewModel {
     public LiveData<List<Track>> getAllTracks() {
         return allTracks;
     }
+
     //--------------------------------------------------------------------------------------------//
     //endregion
 
     //region VARIABLES STATES GETTER SETTER
     //--------------------------------------------------------------------------------------------//
+
     public MutableLiveData<Boolean> getServiceStatus() {
         return serviceStatus;
     }
+
     public void setValueServiceStatus(boolean value){
         serviceStatus.setValue(value);
         savedState.set(SAVED_KEY_SERVICE_STARTED, value);
