@@ -32,21 +32,23 @@ import java.util.List;
 
 public class TrackerService extends Service {
 
+
+    //region VARIABLES
+    //--------------------------------------------------------------------------------------------//
+
     // debug log
     private static final String TAG = "runningTracker";
 
     // notification
     private static final String NOTIFICATION_CHANNEL_ID = "trackerService";
     private static final int NOTIFICATION_ID = 1;
-    private NotificationManager notificationManager;
 
     // callbacks
-    private RemoteCallbackList<TrackerServiceBinder> remoteCallbackList =
+    private final RemoteCallbackList<TrackerServiceBinder> remoteCallbackList =
             new RemoteCallbackList<TrackerServiceBinder>();
 
     // main service
     private RTRepository repository;
-    private LiveData<List<Track>> allTracks;
     private LocationManager locationManager;
     private TrackerLocationListener locationListener;
     private Status status = Status.STARTED;
@@ -55,15 +57,16 @@ public class TrackerService extends Service {
     private Location prevLocation;
     private double distance = 0;
 
+    //--------------------------------------------------------------------------------------------//
+    //endregion
+
     //region LIFE CYCLE METHODS
     //--------------------------------------------------------------------------------------------//
 
     @Override
     public void onCreate() {
-        super.onCreate();
         Log.d(TAG, "onCreate: Tracker Service");
-
-        notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        super.onCreate();
     }
 
     @Override
@@ -73,7 +76,6 @@ public class TrackerService extends Service {
 
         // setup repository instance
         repository = new RTRepository(getApplication());
-        allTracks = repository.getAllTracks();
 
         createNotification();
 
@@ -96,8 +98,8 @@ public class TrackerService extends Service {
 
     @Override
     public void onRebind(Intent intent) {
-        super.onRebind(intent);
         Log.d(TAG, "onRebind: Tracker Service");
+        super.onRebind(intent);
     }
 
     @Override
@@ -108,25 +110,25 @@ public class TrackerService extends Service {
             stopService();
         }
 
-        return super.onUnbind(intent);
+        return true; // to trigger onRebind
     }
 
     @Override
     public void onLowMemory() {
-        super.onLowMemory();
         Log.d(TAG, "onLowMemory: Tracker Service");
+        super.onLowMemory();
     }
 
     @Override
     public void onTrimMemory(int level) {
-        super.onTrimMemory(level);
         Log.d(TAG, "onTrimMemory: Tracker Service");
+        super.onTrimMemory(level);
     }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
-        super.onTaskRemoved(rootIntent);
         Log.d(TAG, "onTaskRemoved: Tracker Service");
+        super.onTaskRemoved(rootIntent);
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -134,6 +136,24 @@ public class TrackerService extends Service {
 
     //region CALLBACKS & MAIN SERVICE
     //--------------------------------------------------------------------------------------------//
+
+    public enum Status{
+        STARTED(1),
+        JUST_STARTED(2),
+        RUNNING(3),
+        PAUSED(4),
+        STOPPED(5);
+
+        private final int value;
+
+        Status(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
 
     public class TrackerLocationListener implements LocationListener {
 
@@ -169,6 +189,7 @@ public class TrackerService extends Service {
             prevLocation = location; // init or continue storing previous location
 
         }
+
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
             // information about the signal, i.e. number of satellites
@@ -193,17 +214,11 @@ public class TrackerService extends Service {
         }
 
         // interact with service through binder
-        public void stopTrackerService(){
-            stopService();
-        }
-        public void runTrackerService(){
-            startListening();
-        }
         public void pauseTrackerService(){
             stopListening();
         }
-        public Status getTrackerServiceStatus(){
-            return getStatus();
+        public void runTrackerService(){
+            startListening();
         }
         public boolean getTrackerServiceIsRunning(){
             return isRunning();
@@ -223,13 +238,15 @@ public class TrackerService extends Service {
     }
 
     // callback loops
+    /*
     public void doCallbacks(int progress) {
-//        final int n = remoteCallbackList.beginBroadcast();
-//        for (int i=0; i<n; i++) {
-//            remoteCallbackList.getBroadcastItem(i).callback.TrackerServiceLocationChange(null);
-//        }
-//        remoteCallbackList.finishBroadcast();
+        final int n = remoteCallbackList.beginBroadcast();
+        for (int i=0; i<n; i++) {
+            remoteCallbackList.getBroadcastItem(i).callback.TrackerServiceLocationChange(null);
+        }
+        remoteCallbackList.finishBroadcast();
     }
+    */
 
     @SuppressLint("MissingPermission")
     private void startListening(){
@@ -263,10 +280,6 @@ public class TrackerService extends Service {
         stopSelf();
     }
 
-    private Status getStatus(){
-        return status;
-    }
-
     private boolean isRunning(){
         return status == Status.RUNNING;
     }
@@ -275,6 +288,9 @@ public class TrackerService extends Service {
     //endregion
 
     //region NOTIFICATIONS
+    //--------------------------------------------------------------------------------------------//
+
+    @SuppressLint("ObsoleteSdkInt")
     public void createNotification(){
 
         // create channel if version >= oreo
@@ -304,33 +320,13 @@ public class TrackerService extends Service {
 
         // Notification ID cannot be 0.
         startForeground(NOTIFICATION_ID, notification);
-//        notificationManager.notify(NOTIFICATION_ID, notification);
     }
 
     public void removeNotification(){
-//        NotificationManagerCompat managerCompat = NotificationManagerCompat.from(TrackerService.this);
-//        managerCompat.cancelAll();
-//        notificationManager.cancel(NOTIFICATION_ID);
         stopForeground(true);
     }
+
+    //--------------------------------------------------------------------------------------------//
     //endregion
-
-    public enum Status{
-        STARTED(1),
-        JUST_STARTED(2),
-        RUNNING(3),
-        PAUSED(4),
-        STOPPED(5);
-
-        private final int value;
-
-        Status(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
-    }
 
 }

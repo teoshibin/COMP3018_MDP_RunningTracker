@@ -64,15 +64,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // instantiate view model
-        viewModel =
-                new ViewModelProvider(this
-//                        ViewModelProvider
-//                                .AndroidViewModelFactory
-//                                .getInstance(this.getApplication())
-                ).get(MainViewModel.class);
+        viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         // request permission if needed
-        requestPermission();
+        if (requestPermission()){
+            startTrackerService();
+        }
 
         // bottom navigation menu and navigation
         bottomNavigationView = findViewById(R.id.bottomNav);
@@ -82,10 +79,10 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
 
         // action bar name sync with fragment names
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(R.id.home2, R.id.stats).build();
+        AppBarConfiguration appBarConfiguration =
+                new AppBarConfiguration.Builder(R.id.home2, R.id.stats).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
-        startTrackerService();
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -121,15 +118,15 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         // making sure every permission is granted
-//        boolean allGranted = true;
-//        if(!hasPermissions(this, PERMISSIONS)){
-//            allGranted = false;
-//        }
+        boolean allGranted = true;
+        if(noPermissions(this, PERMISSIONS)){
+            allGranted = false;
+        }
 
-//        // start service if all permission is granted
-//        if(allGranted = true){
-//            startTrackerService();
-//        }
+        // start service if all permission is granted
+        if(allGranted){
+            startTrackerService();
+        }
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -137,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
 
     //region SERVICE
     //--------------------------------------------------------------------------------------------//
+
     public void startTrackerService(){
         this.startForegroundService(
                 new Intent(this, TrackerService.class));
@@ -149,24 +147,12 @@ public class MainActivity extends AppCompatActivity {
         trackerServiceBinder.runTrackerService();
     }
 
-    public void pauseTrackerService(){
+    public void stopTrackerService(){
         trackerServiceBinder.pauseTrackerService();
     }
 
-    public void stopTrackerService(){
-        trackerServiceBinder.stopTrackerService();
-    }
-
-    public void getTrackerServiceStatus(){
-        trackerServiceBinder.getTrackerServiceStatus();
-    }
-
-    private ICallback callback = new ICallback() {
+    private final ICallback callback = new ICallback() {
         // to use this remember to use runOnUiThread new Runnable()
-        @Override
-        public void statusUpdateEvent() {
-            // TODO call back
-        }
     };
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
@@ -187,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
             trackerServiceBinder = null;
         }
     };
+
     //--------------------------------------------------------------------------------------------//
     //endregion
 }

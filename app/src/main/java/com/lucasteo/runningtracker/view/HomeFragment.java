@@ -50,11 +50,7 @@ public class HomeFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         viewModel =
-                new ViewModelProvider(requireActivity()
-//                        ViewModelProvider
-//                                .AndroidViewModelFactory
-//                                .getInstance(requireActivity().getApplication())
-                ).get(MainViewModel.class);
+                new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
     }
 
@@ -62,8 +58,7 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        final View rootView = inflater.inflate(R.layout.fragment_home, container, false);
-        return rootView;
+        return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
     @Override
