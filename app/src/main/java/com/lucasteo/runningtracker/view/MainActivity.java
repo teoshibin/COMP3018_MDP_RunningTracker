@@ -1,7 +1,6 @@
 package com.lucasteo.runningtracker.view;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.ViewModelProvider;
@@ -11,7 +10,6 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import android.Manifest;
-import android.app.Application;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -21,8 +19,6 @@ import android.os.Bundle;
 import android.content.Context;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.lucasteo.runningtracker.R;
@@ -56,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
     // service
     private TrackerService.TrackerServiceBinder trackerServiceBinder;
+
     //--------------------------------------------------------------------------------------------//
     //endregion
 
@@ -88,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(R.id.home2, R.id.stats).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
+        startTrackerService();
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -138,14 +136,8 @@ public class MainActivity extends AppCompatActivity {
     //endregion
 
     //region SERVICE
+    //--------------------------------------------------------------------------------------------//
     public void startTrackerService(){
-        // normal code to start service in activity
-        // this.startForegroundService(new Intent(this, TrackerService.class));
-        // this.bindService(new Intent(this, TrackerService.class),
-        //         serviceConnection, Context.BIND_AUTO_CREATE);
-
-        // start service in view model
-
         this.startForegroundService(
                 new Intent(this, TrackerService.class));
         this.bindService(
@@ -153,12 +145,28 @@ public class MainActivity extends AppCompatActivity {
                 serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
+    public void runTrackerService(){
+        trackerServiceBinder.runTrackerService();
+    }
+
+    public void pauseTrackerService(){
+        trackerServiceBinder.pauseTrackerService();
+    }
+
     public void stopTrackerService(){
         trackerServiceBinder.stopTrackerService();
     }
 
+    public void getTrackerServiceStatus(){
+        trackerServiceBinder.getTrackerServiceStatus();
+    }
+
     private ICallback callback = new ICallback() {
         // to use this remember to use runOnUiThread new Runnable()
+        @Override
+        public void statusUpdateEvent() {
+            // TODO call back
+        }
     };
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
@@ -168,7 +176,8 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "onServiceConnected: MainActivity");
             trackerServiceBinder = (TrackerService.TrackerServiceBinder) binder;
             trackerServiceBinder.registerCallback(callback);
-            viewModel.setValueServiceStarted(true); // as service existed change status to started
+
+            viewModel.setValueServiceStatus(trackerServiceBinder.getTrackerServiceIsRunning()); // as service existed change status to started
         }
 
         @Override
@@ -178,5 +187,6 @@ public class MainActivity extends AppCompatActivity {
             trackerServiceBinder = null;
         }
     };
+    //--------------------------------------------------------------------------------------------//
     //endregion
 }

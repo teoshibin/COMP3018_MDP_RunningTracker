@@ -1,6 +1,6 @@
 package com.lucasteo.runningtracker.service;
 
-import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -8,7 +8,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -19,11 +18,8 @@ import android.os.IBinder;
 import android.os.IInterface;
 import android.os.RemoteCallbackList;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.lifecycle.LiveData;
 
 import com.lucasteo.runningtracker.R;
@@ -53,7 +49,7 @@ public class TrackerService extends Service {
     private LiveData<List<Track>> allTracks;
     private LocationManager locationManager;
     private TrackerLocationListener locationListener;
-    private boolean justStarted = true;
+    private Status status = Status.STARTED;
 
     // location calculation
     private Location prevLocation;
@@ -78,22 +74,6 @@ public class TrackerService extends Service {
         // setup repository instance
         repository = new RTRepository(getApplication());
         allTracks = repository.getAllTracks();
-
-        // main job of this service
-        // TODO fix location Manager not continue listening after minimizing task (google limited this)
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        locationListener = new TrackerLocationListener();
-
-        // block service from continuing if permission is not granted, restart service later
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // all permissions are all requested at once at the beginning of the app start in MainActivity
-            return Service.START_STICKY;
-        }
-
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                1, // minimum time interval between updates
-                5, // minimum distance between updates, in metres
-                locationListener);
 
         createNotification();
 
@@ -123,6 +103,11 @@ public class TrackerService extends Service {
     @Override
     public boolean onUnbind(Intent intent) {
         Log.d(TAG, "onUnbind: Tracker Service");
+
+        if(status != Status.JUST_STARTED && status != Status.RUNNING){
+            stopService();
+        }
+
         return super.onUnbind(intent);
     }
 
@@ -156,7 +141,7 @@ public class TrackerService extends Service {
         public void onLocationChanged(Location location) {
 
             // ignore calculation and data storing for the first location
-            if(!justStarted){
+            if(status == Status.RUNNING){
                 if (prevLocation != null){
                     distance = prevLocation.distanceTo(location);
                 }
@@ -178,8 +163,8 @@ public class TrackerService extends Service {
                                 new Date()
                         )
                 );
-            } else {
-                justStarted = false;
+            } else if (status == Status.JUST_STARTED){
+                status = Status.RUNNING;
             }
             prevLocation = location; // init or continue storing previous location
 
@@ -208,9 +193,20 @@ public class TrackerService extends Service {
         }
 
         // interact with service through binder
-
         public void stopTrackerService(){
             stopService();
+        }
+        public void runTrackerService(){
+            startListening();
+        }
+        public void pauseTrackerService(){
+            stopListening();
+        }
+        public Status getTrackerServiceStatus(){
+            return getStatus();
+        }
+        public boolean getTrackerServiceIsRunning(){
+            return isRunning();
         }
 
         // callback methods
@@ -235,14 +231,44 @@ public class TrackerService extends Service {
 //        remoteCallbackList.finishBroadcast();
     }
 
-    public void stopService(){
+    @SuppressLint("MissingPermission")
+    private void startListening(){
+
+        // TODO fix location Manager not continue listening after minimizing task (google limited this)
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationListener = new TrackerLocationListener();
+
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                1, // minimum time interval between updates
+                5, // minimum distance between updates, in metres
+                locationListener);
+
+        status = Status.JUST_STARTED;
+    }
+
+    private void stopListening(){
         if(locationManager != null){
             locationManager.removeUpdates(locationListener);
         }
         locationListener = null;
         locationManager = null;
+
+        status = Status.PAUSED;
+    }
+
+    private void stopService(){
+        status = Status.STOPPED;
+        stopListening();
         removeNotification();
         stopSelf();
+    }
+
+    private Status getStatus(){
+        return status;
+    }
+
+    private boolean isRunning(){
+        return status == Status.RUNNING;
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -288,5 +314,23 @@ public class TrackerService extends Service {
         stopForeground(true);
     }
     //endregion
+
+    public enum Status{
+        STARTED(1),
+        JUST_STARTED(2),
+        RUNNING(3),
+        PAUSED(4),
+        STOPPED(5);
+
+        private final int value;
+
+        Status(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
 
 }

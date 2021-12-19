@@ -5,8 +5,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.location.Location;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -47,7 +45,8 @@ public class MainViewModel extends AndroidViewModel {
     private final LiveData<List<Track>> allTracks;
 
     // UI states
-    private MutableLiveData<Boolean> serviceStarted;
+    private MutableLiveData<Boolean> serviceStatus;
+
     //--------------------------------------------------------------------------------------------//
     //endregion
 
@@ -61,74 +60,75 @@ public class MainViewModel extends AndroidViewModel {
         savedState = savedStateHandle;
 
         // init variables default
-        serviceStarted = new MutableLiveData<>(Boolean.FALSE);
+        serviceStatus = new MutableLiveData<>(Boolean.FALSE);
 
         // retrieve saved instance state
         if (savedStateHandle.contains(SAVED_KEY_SERVICE_STARTED)){
-            serviceStarted.setValue(savedStateHandle.get(SAVED_KEY_SERVICE_STARTED));
+            serviceStatus.setValue(savedStateHandle.get(SAVED_KEY_SERVICE_STARTED));
         }
 
         // repo stuff
         repository = new RTRepository(application);
         allTracks = repository.getAllTracks();
 
+//        startTrackerService();
     }
 
-    public void toggleService(){
-        boolean value = serviceStarted.getValue() != null ? serviceStarted.getValue() : false;
-        if(value){
-            stopTrackerService();
-        } else {
-            startTrackerService();
-        }
-        setValueServiceStarted(!value);
+    public void toggleServiceStatus(){
+        boolean value = serviceStatus.getValue() != null ? serviceStatus.getValue() : false;
+//        if(value){
+//            stopTrackerService();
+//        } else {
+//            startTrackerService();
+//        }
+        setValueServiceStatus(!value);
     }
     //--------------------------------------------------------------------------------------------//
     //endregion
 
     //region SERVICE
     //--------------------------------------------------------------------------------------------//
-    private void startTrackerService(){
-        // normal code to start service in activity
-        // this.startForegroundService(new Intent(this, TrackerService.class));
-        // this.bindService(new Intent(this, TrackerService.class),
-        //         serviceConnection, Context.BIND_AUTO_CREATE);
-
-        // start service in view model
-        Application applicationRef = getApplication();
-
-        applicationRef.startForegroundService(
-                new Intent(applicationRef, TrackerService.class));
-        applicationRef.bindService(
-                new Intent(applicationRef, TrackerService.class),
-                serviceConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    private void stopTrackerService(){
-        trackerServiceBinder.stopTrackerService();
-    }
-
-    ICallback callback = new ICallback() {
-        // to use this remember to use runOnUiThread new Runnable()
-    };
-
-    private final ServiceConnection serviceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder binder) {
-            Log.d(TAG, "onServiceConnected: MainViewModel");
-            trackerServiceBinder = (TrackerService.TrackerServiceBinder) binder;
-            trackerServiceBinder.registerCallback(callback);
-            setValueServiceStarted(true); // as service existed change status to started
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.d(TAG, "onServiceDisconnected: MainActivity");
-            trackerServiceBinder.unregisterCallback(callback);
-            trackerServiceBinder = null;
-        }
-    };
+//    private void startTrackerService(){
+//        // normal code to start service in activity
+//        // this.startForegroundService(new Intent(this, TrackerService.class));
+//        // this.bindService(new Intent(this, TrackerService.class),
+//        //         serviceConnection, Context.BIND_AUTO_CREATE);
+//
+//        // start service in view model
+//        Application applicationRef = getApplication();
+//
+//        applicationRef.startForegroundService(
+//                new Intent(applicationRef, TrackerService.class));
+//        applicationRef.bindService(
+//                new Intent(applicationRef, TrackerService.class),
+//                serviceConnection, Context.BIND_AUTO_CREATE);
+//    }
+//
+//    private void stopTrackerService(){
+//        trackerServiceBinder.stopTrackerService();
+//    }
+//
+//    ICallback callback = new ICallback() {
+//        // to use this remember to use runOnUiThread new Runnable()
+//    };
+//
+//    private final ServiceConnection serviceConnection = new ServiceConnection() {
+//
+//        @Override
+//        public void onServiceConnected(ComponentName name, IBinder binder) {
+//            Log.d(TAG, "onServiceConnected: MainViewModel");
+//            trackerServiceBinder = (TrackerService.TrackerServiceBinder) binder;
+//            trackerServiceBinder.registerCallback(callback);
+//            setValueServiceStatus(true); // as service existed change status to started
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName name) {
+//            Log.d(TAG, "onServiceDisconnected: MainActivity");
+//            trackerServiceBinder.unregisterCallback(callback);
+//            trackerServiceBinder = null;
+//        }
+//    };
     //--------------------------------------------------------------------------------------------//
     //endregion
 
@@ -146,13 +146,18 @@ public class MainViewModel extends AndroidViewModel {
 
     //region VARIABLES STATES GETTER SETTER
     //--------------------------------------------------------------------------------------------//
-    public MutableLiveData<Boolean> getServiceStarted() {
-        return serviceStarted;
+    public MutableLiveData<Boolean> getServiceStatus() {
+        return serviceStatus;
     }
-    public void setValueServiceStarted(boolean value){
-        serviceStarted.setValue(value);
+    public void setValueServiceStatus(boolean value){
+        serviceStatus.setValue(value);
         savedState.set(SAVED_KEY_SERVICE_STARTED, value);
     }
+
+    public boolean getValueServiceStatus(){
+        return serviceStatus.getValue() != null ? serviceStatus.getValue() : false;
+    }
+
     //--------------------------------------------------------------------------------------------//
     //endregion
 
