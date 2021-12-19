@@ -37,7 +37,7 @@ import java.util.List;
 public class TrackerService extends Service {
 
     // debug log
-    private static final String TAG = "TrackerService";
+    private static final String TAG = "runningTracker";
 
     // notification
     private static final String NOTIFICATION_CHANNEL_ID = "trackerService";

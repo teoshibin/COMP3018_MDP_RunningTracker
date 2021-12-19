@@ -11,6 +11,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import android.Manifest;
+import android.app.Application;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -37,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     //--------------------------------------------------------------------------------------------//
 
     // log
-    private final String TAG = "MainActivity";
+    private static final String TAG = "runningTracker";
 
     // permissions
     int PERMISSION_ALL = 1;
@@ -52,8 +53,9 @@ public class MainActivity extends AppCompatActivity {
 
     // main
     private MainViewModel viewModel;
-    private boolean serviceStarted = false;
 
+    // service
+    private TrackerService.TrackerServiceBinder trackerServiceBinder;
     //--------------------------------------------------------------------------------------------//
     //endregion
 
@@ -66,10 +68,10 @@ public class MainActivity extends AppCompatActivity {
 
         // instantiate view model
         viewModel =
-                new ViewModelProvider(this,
-                        ViewModelProvider
-                                .AndroidViewModelFactory
-                                .getInstance(this.getApplication())
+                new ViewModelProvider(this
+//                        ViewModelProvider
+//                                .AndroidViewModelFactory
+//                                .getInstance(this.getApplication())
                 ).get(MainViewModel.class);
 
         // request permission if needed
@@ -133,5 +135,48 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //--------------------------------------------------------------------------------------------//
+    //endregion
+
+    //region SERVICE
+    public void startTrackerService(){
+        // normal code to start service in activity
+        // this.startForegroundService(new Intent(this, TrackerService.class));
+        // this.bindService(new Intent(this, TrackerService.class),
+        //         serviceConnection, Context.BIND_AUTO_CREATE);
+
+        // start service in view model
+
+        this.startForegroundService(
+                new Intent(this, TrackerService.class));
+        this.bindService(
+                new Intent(this, TrackerService.class),
+                serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    public void stopTrackerService(){
+        trackerServiceBinder.stopTrackerService();
+    }
+
+    private ICallback callback = new ICallback() {
+        // to use this remember to use runOnUiThread new Runnable()
+    };
+
+    private final ServiceConnection serviceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder binder) {
+            Log.d(TAG, "onServiceConnected: MainActivity");
+            trackerServiceBinder = (TrackerService.TrackerServiceBinder) binder;
+            trackerServiceBinder.registerCallback(callback);
+            viewModel.setValueServiceStarted(true); // as service existed change status to started
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.d(TAG, "onServiceDisconnected: MainActivity");
+            trackerServiceBinder.unregisterCallback(callback);
+            trackerServiceBinder = null;
+        }
+    };
     //endregion
 }

@@ -46,10 +46,10 @@ public class StatsFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         viewModel =
-                new ViewModelProvider(getActivity(),
-                        ViewModelProvider
-                                .AndroidViewModelFactory
-                                .getInstance(getActivity().getApplication())
+                new ViewModelProvider(getActivity()
+//                        ViewModelProvider
+//                                .AndroidViewModelFactory
+//                                .getInstance(getActivity().getApplication())
                 ).get(MainViewModel.class);
     }
 

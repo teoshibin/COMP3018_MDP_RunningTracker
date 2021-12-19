@@ -13,6 +13,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.SavedStateHandle;
 
 import com.lucasteo.runningtracker.model.RTRepository;
 import com.lucasteo.runningtracker.model.Track;
@@ -26,24 +28,45 @@ import java.util.List;
  */
 public class MainViewModel extends AndroidViewModel {
 
+    //region VARIABLES
+    //--------------------------------------------------------------------------------------------//
+    // save instance state
+    SavedStateHandle savedState;
+
     // debug log
-    private static final String TAG = "MainViewModel";
+    private static final String TAG = "runningTracker";
+
+    // save instance state value keys
+    private static final String SAVED_KEY_SERVICE_STARTED = "serviceStarted";
+
+    // service
+    private TrackerService.TrackerServiceBinder trackerServiceBinder;
 
     // repo
     private RTRepository repository;
     private final LiveData<List<Track>> allTracks;
 
-    // service
-    private TrackerService.TrackerServiceBinder trackerServiceBinder;
+    // UI states
+    private MutableLiveData<Boolean> serviceStarted;
+    //--------------------------------------------------------------------------------------------//
+    //endregion
 
-    /**
-     * Main Activity ViewModel
-     *
-     * @param application application reference for retrieving repository
-     */
-    public MainViewModel(@NonNull Application application) {
+    //region MAIN CONSTRUCTOR AND METHODS
+    //--------------------------------------------------------------------------------------------//
+    public MainViewModel(@NonNull Application application, SavedStateHandle savedStateHandle) {
         super(application);
         Log.d(TAG, "MainViewModel: Instantiated");
+
+        // save instance state
+        savedState = savedStateHandle;
+
+        // init variables default
+        serviceStarted = new MutableLiveData<>(Boolean.FALSE);
+
+        // retrieve saved instance state
+        if (savedStateHandle.contains(SAVED_KEY_SERVICE_STARTED)){
+            serviceStarted.setValue(savedStateHandle.get(SAVED_KEY_SERVICE_STARTED));
+        }
 
         // repo stuff
         repository = new RTRepository(application);
@@ -51,8 +74,21 @@ public class MainViewModel extends AndroidViewModel {
 
     }
 
+    public void toggleService(){
+        boolean value = serviceStarted.getValue() != null ? serviceStarted.getValue() : false;
+        if(value){
+            stopTrackerService();
+        } else {
+            startTrackerService();
+        }
+        setValueServiceStarted(!value);
+    }
+    //--------------------------------------------------------------------------------------------//
+    //endregion
+
     //region SERVICE
-    public void startTrackerService(){
+    //--------------------------------------------------------------------------------------------//
+    private void startTrackerService(){
         // normal code to start service in activity
         // this.startForegroundService(new Intent(this, TrackerService.class));
         // this.bindService(new Intent(this, TrackerService.class),
@@ -60,6 +96,7 @@ public class MainViewModel extends AndroidViewModel {
 
         // start service in view model
         Application applicationRef = getApplication();
+
         applicationRef.startForegroundService(
                 new Intent(applicationRef, TrackerService.class));
         applicationRef.bindService(
@@ -67,7 +104,7 @@ public class MainViewModel extends AndroidViewModel {
                 serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    public void StopTrackerService(){
+    private void stopTrackerService(){
         trackerServiceBinder.stopTrackerService();
     }
 
@@ -79,9 +116,10 @@ public class MainViewModel extends AndroidViewModel {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
-            Log.d(TAG, "onServiceConnected: MainActivity");
+            Log.d(TAG, "onServiceConnected: MainViewModel");
             trackerServiceBinder = (TrackerService.TrackerServiceBinder) binder;
             trackerServiceBinder.registerCallback(callback);
+            setValueServiceStarted(true); // as service existed change status to started
         }
 
         @Override
@@ -91,9 +129,11 @@ public class MainViewModel extends AndroidViewModel {
             trackerServiceBinder = null;
         }
     };
+    //--------------------------------------------------------------------------------------------//
     //endregion
 
     //region VM and Repo Interaction
+    //--------------------------------------------------------------------------------------------//
     public void insert(Track track) {
         repository.insert(track);
     }
@@ -101,59 +141,20 @@ public class MainViewModel extends AndroidViewModel {
     public LiveData<List<Track>> getAllTracks() {
         return allTracks;
     }
+    //--------------------------------------------------------------------------------------------//
     //endregion
 
-//    // save state keys
-//    private final String SAVED_KEY_SHAPE = "shape";
-//    private final String SAVED_KEY_SIZE = "size";
-//    private final String SAVED_KEY_COLOR = "color";
-//
-//    // variables
-//    SavedStateHandle savedState;
-//    public MutableLiveData<Integer> brushColor = new MutableLiveData<>(Integer.valueOf(Color.BLACK));
-//    public MutableLiveData<Paint.Cap> brushShape = new MutableLiveData<>(Paint.Cap.ROUND);
-//    public MutableLiveData<Integer> brushSize = new MutableLiveData<>(20);
-//
-//    // constructor for recovering state
-//    public MainViewModel(SavedStateHandle savedStateHandle){
-//        this.savedState = savedStateHandle;
-//        if(savedStateHandle.contains(SAVED_KEY_COLOR)){
-//            brushColor.setValue(savedStateHandle.get(SAVED_KEY_COLOR));
-//        }
-//        if(savedStateHandle.contains(SAVED_KEY_SHAPE)){
-//            brushShape.setValue(savedStateHandle.get(SAVED_KEY_SHAPE));
-//        }
-//        if(savedStateHandle.contains(SAVED_KEY_SIZE)){
-//            brushSize.setValue(savedStateHandle.get(SAVED_KEY_SIZE));
-//        }
-//    }
-//
-//    public int getBrushSize() {
-//        return brushSize.getValue();
-//    }
-//
-//    public Paint.Cap getBrushShape() {
-//        return brushShape.getValue();
-//    }
-//
-//    public int getBrushColor() {
-//        return brushColor.getValue();
-//    }
-//
-//    public void setBrushSize(int brushSize) {
-//        this.brushSize.setValue(brushSize);
-//        savedState.set(SAVED_KEY_SIZE, brushSize);
-//    }
-//
-//    public void setBrushShape(Paint.Cap brushShape) {
-//        this.brushShape.setValue(brushShape);
-//        savedState.set(SAVED_KEY_SHAPE, brushShape);
-//    }
-//
-//    public void setBrushColor(int brushColor) {
-//        this.brushColor.setValue(brushColor);
-//        savedState.set(SAVED_KEY_COLOR, brushColor);
-//    }
+    //region VARIABLES STATES GETTER SETTER
+    //--------------------------------------------------------------------------------------------//
+    public MutableLiveData<Boolean> getServiceStarted() {
+        return serviceStarted;
+    }
+    public void setValueServiceStarted(boolean value){
+        serviceStarted.setValue(value);
+        savedState.set(SAVED_KEY_SERVICE_STARTED, value);
+    }
+    //--------------------------------------------------------------------------------------------//
+    //endregion
 
 }
 

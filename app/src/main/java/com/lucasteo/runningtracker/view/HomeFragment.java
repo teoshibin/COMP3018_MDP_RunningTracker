@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
@@ -26,7 +27,9 @@ public class HomeFragment extends Fragment {
 
     // main
     private MainViewModel viewModel;
-    private boolean serviceStarted = false; // TODO save instance state
+
+    // UI components
+    private Button serviceBtn;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -48,10 +51,10 @@ public class HomeFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         viewModel =
-                new ViewModelProvider(getActivity(),
-                        ViewModelProvider
-                                .AndroidViewModelFactory
-                                .getInstance(getActivity().getApplication())
+                new ViewModelProvider(requireActivity()
+//                        ViewModelProvider
+//                                .AndroidViewModelFactory
+//                                .getInstance(requireActivity().getApplication())
                 ).get(MainViewModel.class);
 
     }
@@ -68,21 +71,29 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Button button = requireView().findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
+        // look for UI components
+        serviceBtn = requireView().findViewById(R.id.button);
+
+        // button onClick
+        serviceBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // switch button display text and controlling service
-                if(serviceStarted){
-                    button.setText(R.string.btnStart);
-                    viewModel.StopTrackerService();
-                } else {
-                    button.setText(R.string.btnStop);
-                    viewModel.startTrackerService();
-                }
-                serviceStarted = !serviceStarted;
+                viewModel.toggleService();
             }
         });
-    }
 
+        // change button text dynamically
+        viewModel.getServiceStarted().observe(requireActivity(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if (aBoolean){
+                    serviceBtn.setText(R.string.btnStop);
+                } else {
+                    serviceBtn.setText(R.string.btnStart);
+                }
+            }
+        });
+
+    }
 }
