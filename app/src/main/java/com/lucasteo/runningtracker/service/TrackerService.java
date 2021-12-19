@@ -257,7 +257,7 @@ public class TrackerService extends Service {
 
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                 1, // minimum time interval between updates
-                5, // minimum distance between updates, in metres
+                1, // minimum distance between updates, in metres
                 locationListener);
 
         status = Status.JUST_STARTED;
