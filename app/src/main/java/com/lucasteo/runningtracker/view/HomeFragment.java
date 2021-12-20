@@ -29,6 +29,7 @@ public class HomeFragment extends Fragment {
 
     // UI components
     private Button serviceBtn;
+    private Button button;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -67,6 +68,7 @@ public class HomeFragment extends Fragment {
 
         // look for UI components
         serviceBtn = requireView().findViewById(R.id.button);
+        button = requireView().findViewById(R.id.button2);
 
         // button onClick
         serviceBtn.setOnClickListener(new View.OnClickListener() {
@@ -80,6 +82,13 @@ public class HomeFragment extends Fragment {
                     mainActivity.runTrackerService();
                 }
                 viewModel.toggleServiceStatus();
+            }
+        });
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
             }
         });
 

@@ -4,6 +4,7 @@ import android.app.Application;
 
 import androidx.lifecycle.LiveData;
 
+import java.util.Date;
 import java.util.List;
 
 public class RTRepository {
@@ -13,6 +14,7 @@ public class RTRepository {
 
     // Data
     private LiveData<List<Track>> allTracks;
+    private LiveData<List<Track>> tracksOnDate;
 
     /**
      * repository constructor
@@ -25,6 +27,7 @@ public class RTRepository {
         // retrieving tracks
         trackDao = db.trackDao();
         allTracks = trackDao.getTracks();
+        tracksOnDate = allTracks;
 
     }
 
@@ -32,9 +35,12 @@ public class RTRepository {
         return allTracks;
     }
 
+    // CRUD
+
     public void insert(Track track){
         RTRoomDatabase.databaseWriteExecutor.execute(() -> {
             trackDao.insert(track);
         });
     }
+
 }
