@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,8 +15,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.lucasteo.runningtracker.R;
+import com.lucasteo.runningtracker.model.Track;
 import com.lucasteo.runningtracker.viewHelper.TrackAdapter;
 import com.lucasteo.runningtracker.viewmodel.MainViewModel;
+
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -69,8 +73,11 @@ public class StatsFragment extends Fragment {
         final TrackAdapter adapter = new TrackAdapter(getActivity());
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        viewModel.getAllTracks().observe(getActivity(), tracks -> {
-            adapter.setData(tracks);
+        viewModel.getAllTracks().observe(getActivity(), new Observer<List<Track>>() {
+            @Override
+            public void onChanged(List<Track> tracks) {
+                adapter.setData(tracks);
+            }
         });
     }
 }

@@ -17,8 +17,13 @@ import java.util.concurrent.Executors;
 @TypeConverters({DateTimeConverter.class})
 public abstract class RTRoomDatabase extends RoomDatabase {
 
+    // constant
+    private final static String TAG = "runningTracker";
+
+    // data access object
     public abstract TrackDao trackDao();
 
+    // repo
     private static volatile RTRoomDatabase INSTANCE;
     private static final int NUMBER_OF_THREADS = 4;
     static final ExecutorService databaseWriteExecutor =
@@ -45,7 +50,7 @@ public abstract class RTRoomDatabase extends RoomDatabase {
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
 
-            Log.d("comp3018", "dboncreate");
+            Log.d(TAG, "onCreate: RTRoomDatabase");
 
             // create database using non UI thread
             databaseWriteExecutor.execute(() -> {

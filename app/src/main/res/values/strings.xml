@@ -4,4 +4,9 @@
     <string name="btnStop">Stop</string>
     <string name="notification_title">Recording Steps</string>
     <string name="notification_text">Running Tracker is counting your steps</string>
+    <string name="group_by_date_track_item_date">Date</string>
+    <string name="group_by_date_track_item_distance">Total Distance</string>
+    <string name="group_by_date_track_item_avg_speed">Avg Speed</string>
+    <string name="group_by_date_track_item_max_speed">Max Speed</string>
+    <string name="group_by_date_track_item_records">Records Count</string>
 </resources>

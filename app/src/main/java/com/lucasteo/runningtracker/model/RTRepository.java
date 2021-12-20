@@ -4,7 +4,6 @@ import android.app.Application;
 
 import androidx.lifecycle.LiveData;
 
-import java.util.Date;
 import java.util.List;
 
 public class RTRepository {
@@ -14,7 +13,8 @@ public class RTRepository {
 
     // Data
     private LiveData<List<Track>> allTracks;
-    private LiveData<List<Track>> tracksOnDate;
+//    private LiveData<List<Track>> queriedTracks;
+    private LiveData<List<GroupByDateTrack>> allGroupByDateTracks;
 
     /**
      * repository constructor
@@ -24,23 +24,104 @@ public class RTRepository {
     public RTRepository(Application application) {
         RTRoomDatabase db = RTRoomDatabase.getDatabase(application);
 
-        // retrieving tracks
+        // retrieving tracks dao
         trackDao = db.trackDao();
+
+        // initialize data
         allTracks = trackDao.getTracks();
-        tracksOnDate = allTracks;
+        allGroupByDateTracks = trackDao.getGroupByDateTracks();
+
+
+//        queriedTracks = loadTracksWithDateRange(DateRange.TODAY);
+
+
+//        RTRoomDatabase.databaseWriteExecutor.execute(() -> {
+//             statisticPojo = trackDao.getTracksStatistics();
+//        });
+
+
+//        Log.d("runningTracker", "RTRepository: " + statisticPojo);
 
     }
 
-    public LiveData<List<Track>> getAllTracks() {
-        return allTracks;
-    }
+//    public enum DateRange{
+//        PAST_ONE_DAY,
+//        PAST_ONE_WEEK,
+//        PAST_ONE_MONTH,
+//        PAST_ONE_YEAR,
+//        TODAY,
+//        YESTERDAY,
+//        THIS_WEEK_STARTING_FROM_SUNDAY,
+//        THIS_WEEK_STARTING_FROM_MONDAY,
+//        THIS_MONTH,
+//        THIS_YEAR,
+//    }
 
-    // CRUD
+    // standard queries
 
     public void insert(Track track){
         RTRoomDatabase.databaseWriteExecutor.execute(() -> {
             trackDao.insert(track);
         });
     }
+
+    public void deleteAll(){
+        RTRoomDatabase.databaseWriteExecutor.execute(() -> {
+            trackDao.deleteAll();
+        });
+    }
+
+//    public LiveData<List<Track>> loadTracksWithDateRange(DateRange dateRange){
+//        LiveData<List<Track>> temp = null;
+//        switch (dateRange){
+//            case PAST_ONE_DAY:
+//                temp = trackDao.getTracksPastOneDay();
+//                break;
+//            case PAST_ONE_WEEK:
+//                temp = trackDao.getTracksPastOneWeek();
+//                break;
+//            case PAST_ONE_MONTH:
+//                temp = trackDao.getTracksPastOneMonth();
+//                break;
+//            case PAST_ONE_YEAR:
+//                temp = trackDao.getTracksPastOneYear();
+//                break;
+//            case TODAY:
+//                temp = trackDao.getTracksToday();
+//                break;
+//            case YESTERDAY:
+//                temp = trackDao.getTracksYesterday();
+//                break;
+//            case THIS_WEEK_STARTING_FROM_SUNDAY:
+//                temp = trackDao.getTracksThisWeekSUN();
+//                break;
+//            case THIS_WEEK_STARTING_FROM_MONDAY:
+//                temp = trackDao.getTracksThisWeekMON();
+//                break;
+//            case THIS_MONTH:
+//                temp = trackDao.getTracksThisMonth();
+//                break;
+//            case THIS_YEAR:
+//                temp = trackDao.getTracksThisYear();
+//                break;
+//        }
+//        return temp;
+//    }
+
+    // setter getter
+
+    public LiveData<List<Track>> getAllTracks() {
+        return allTracks;
+    }
+
+    public LiveData<List<GroupByDateTrack>> getAllGroupByDateTracks(){
+        return allGroupByDateTracks;
+    }
+
+//    public LiveData<List<Track>> getQueriedTracks(){
+//        return queriedTracks;
+//    }
+
+
 
 }
