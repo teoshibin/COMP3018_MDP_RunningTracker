@@ -14,7 +14,7 @@ public class RTRepository {
     // Data
     private LiveData<List<Track>> allTracks;
 //    private LiveData<List<Track>> queriedTracks;
-    private LiveData<List<GroupByDateTrack>> allGroupByDateTracks;
+    private LiveData<List<GroupByDateTrackPojo>> allGroupByDateTracks;
 
     /**
      * repository constructor
@@ -114,7 +114,7 @@ public class RTRepository {
         return allTracks;
     }
 
-    public LiveData<List<GroupByDateTrack>> getAllGroupByDateTracks(){
+    public LiveData<List<GroupByDateTrackPojo>> getAllGroupByDateTracks(){
         return allGroupByDateTracks;
     }
 

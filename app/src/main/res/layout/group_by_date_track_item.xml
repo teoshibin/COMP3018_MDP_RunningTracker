@@ -4,9 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="16dp"
-    android:background="#A965C1FF"
+    android:background="#FFFFFF"
     android:paddingBottom="16dp">
 
     <TextView
@@ -23,18 +21,18 @@
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <TextView
-        android:id="@+id/distaceTextView"
+        android:id="@+id/distanceTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif"
         android:text="TextView"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="@+id/textView3"
-        app:layout_constraintEnd_toEndOf="@+id/distaceTextView2"
-        app:layout_constraintStart_toStartOf="@+id/distaceTextView2" />
+        app:layout_constraintEnd_toEndOf="@+id/recordTextView"
+        app:layout_constraintStart_toStartOf="@+id/recordTextView" />
 
     <TextView
-        android:id="@+id/distaceTextView2"
+        android:id="@+id/recordTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif"
@@ -89,7 +87,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif"
-        android:text="@string/group_by_date_track_item_avg_speed"
+        android:text="@string/group_by_date_track_item_max_speed"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/textView4"
@@ -110,7 +108,7 @@
         app:layout_constraintStart_toEndOf="@+id/textView" />
 
     <TextView
-        android:id="@+id/dateTextVIew3"
+        android:id="@+id/avgSpeedTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -123,13 +121,13 @@
         app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
     <TextView
-        android:id="@+id/dateTextVIew4"
+        android:id="@+id/maxSpeedTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif"
         android:text="TextView"
         android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="@+id/dateTextVIew3"
+        app:layout_constraintBottom_toBottomOf="@+id/avgSpeedTextView"
         app:layout_constraintEnd_toEndOf="@+id/textView5"
         app:layout_constraintStart_toStartOf="@+id/textView5" />
 </androidx.constraintlayout.widget.ConstraintLayout>

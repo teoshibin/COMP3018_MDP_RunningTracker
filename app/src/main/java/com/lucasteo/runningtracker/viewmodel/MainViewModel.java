@@ -1,11 +1,6 @@
 package com.lucasteo.runningtracker.viewmodel;
 
 import android.app.Application;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -14,13 +9,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 
-import com.lucasteo.runningtracker.model.GroupByDateTrack;
+import com.lucasteo.runningtracker.model.GroupByDateTrackPojo;
 import com.lucasteo.runningtracker.model.RTRepository;
 import com.lucasteo.runningtracker.model.Track;
-import com.lucasteo.runningtracker.service.ICallback;
-import com.lucasteo.runningtracker.service.TrackerService;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -43,7 +35,7 @@ public class MainViewModel extends AndroidViewModel {
     // repo
     private RTRepository repository;
     private final LiveData<List<Track>> allTracks;
-    private final LiveData<List<GroupByDateTrack>> allGroupByDateTracks;
+    private final LiveData<List<GroupByDateTrackPojo>> allGroupByDateTracks;
 
     // UI states
     private MutableLiveData<Boolean> serviceStatus;
@@ -95,7 +87,7 @@ public class MainViewModel extends AndroidViewModel {
         return allTracks;
     }
 
-    public LiveData<List<GroupByDateTrack>> getAllGroupByDayTrack(){
+    public LiveData<List<GroupByDateTrackPojo>> getAllGroupByDayTrack(){
         return allGroupByDateTracks;
     }
 

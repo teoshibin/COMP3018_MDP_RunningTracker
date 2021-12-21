@@ -23,14 +23,15 @@ public interface TrackDao {
     LiveData<List<Track>> getTracks();
 
     @Query("SELECT " +
-            "count(trackID) AS 'numberOfRecords', " +
-            "round(sum(distance),2) AS 'totalDistance', " +
-            "round(avg(speed),2) AS 'averageSpeed', " +
-            "round(max(speed),2) AS 'maximumSpeed', " +
-            "date(CAST(createdTime/1000 AS INTEGER), 'unixepoch') AS 'date' " +
+            "count(trackID) AS number_of_records, " +
+            "round(sum(distance),2) AS total_distance, " +
+            "round(avg(speed),2) AS average_speed, " +
+            "round(max(speed),2) AS maximum_speed, " +
+            "date(CAST(createdTime/1000 AS INTEGER), 'unixepoch') AS record_date " +
             "FROM track_table " +
-            "GROUP BY date(CAST(createdTime/1000 AS INTEGER), 'unixepoch')")
-    LiveData<List<GroupByDateTrack>> getGroupByDateTracks();
+            "GROUP BY record_date " +
+            "ORDER BY record_date DESC")
+    LiveData<List<GroupByDateTrackPojo>> getGroupByDateTracks();
 
 //    // PAST X PERIOD
 //

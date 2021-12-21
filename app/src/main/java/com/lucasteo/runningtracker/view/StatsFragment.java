@@ -15,7 +15,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.lucasteo.runningtracker.R;
+import com.lucasteo.runningtracker.model.GroupByDateTrackPojo;
 import com.lucasteo.runningtracker.model.Track;
+import com.lucasteo.runningtracker.viewHelper.GroupByDateTrackAdapter;
+import com.lucasteo.runningtracker.viewHelper.SpacingItemDecorator;
 import com.lucasteo.runningtracker.viewHelper.TrackAdapter;
 import com.lucasteo.runningtracker.viewmodel.MainViewModel;
 
@@ -50,11 +53,7 @@ public class StatsFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         viewModel =
-                new ViewModelProvider(getActivity()
-//                        ViewModelProvider
-//                                .AndroidViewModelFactory
-//                                .getInstance(getActivity().getApplication())
-                ).get(MainViewModel.class);
+                new ViewModelProvider(getActivity()).get(MainViewModel.class);
     }
 
     @Override
@@ -69,15 +68,36 @@ public class StatsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Load UI
+//        RecyclerView recyclerView = getView().findViewById(R.id.itemList);
+//        final TrackAdapter adapter = new TrackAdapter(getActivity());
+//        recyclerView.setAdapter(adapter);
+//        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+//        viewModel.getAllTracks().observe(getActivity(), new Observer<List<Track>>() {
+//            @Override
+//            public void onChanged(List<Track> tracks) {
+//                adapter.setData(tracks);
+//            }
+//        });
+
         RecyclerView recyclerView = getView().findViewById(R.id.itemList);
-        final TrackAdapter adapter = new TrackAdapter(getActivity());
+
+        GroupByDateTrackAdapter adapter = new GroupByDateTrackAdapter(getActivity());
         recyclerView.setAdapter(adapter);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        viewModel.getAllTracks().observe(getActivity(), new Observer<List<Track>>() {
+
+        SpacingItemDecorator spacingItemDecorator =
+                new SpacingItemDecorator(
+                        getResources().getDimensionPixelSize(R.dimen.recycler_view_item_spacing)
+                );
+        recyclerView.addItemDecoration(spacingItemDecorator);
+
+        viewModel.getAllGroupByDayTrack().observe(getActivity(), new Observer<List<GroupByDateTrackPojo>>() {
             @Override
-            public void onChanged(List<Track> tracks) {
-                adapter.setData(tracks);
+            public void onChanged(List<GroupByDateTrackPojo> items) {
+                adapter.setData(items);
             }
         });
+
     }
 }
