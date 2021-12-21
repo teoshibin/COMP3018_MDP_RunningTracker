@@ -41,7 +41,8 @@ public class MainActivity extends AppCompatActivity {
     String[] PERMISSIONS = {
             Manifest.permission.FOREGROUND_SERVICE,
             Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_BACKGROUND_LOCATION
     };
 
     // UI Components

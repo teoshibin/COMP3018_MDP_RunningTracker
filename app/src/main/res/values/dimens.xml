@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="recycler_view_item_spacing">12dip</dimen>
+    <dimen name="recycler_view_item_spacing">10dip</dimen>
 </resources>

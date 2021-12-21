@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.lucasteo.runningtracker.R;
-import com.lucasteo.runningtracker.calculations.DateFormatter;
 import com.lucasteo.runningtracker.model.GroupByDateTrackPojo;
 
 import java.util.ArrayList;
@@ -57,14 +56,13 @@ public class GroupByDateTrackAdapter extends RecyclerView.Adapter<GroupByDateTra
         }
     }
 
-    class GroupByDateTrackViewHolder extends RecyclerView.ViewHolder{
+    static class GroupByDateTrackViewHolder extends RecyclerView.ViewHolder{
 
         TextView dateView;
         TextView distanceView;
         TextView recordView;
         TextView avgSpeedView;
         TextView maxSpeedView;
-
 
         public GroupByDateTrackViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -79,6 +77,7 @@ public class GroupByDateTrackAdapter extends RecyclerView.Adapter<GroupByDateTra
 
         void bind(final GroupByDateTrackPojo groupByDateTrackPojo){
             if (groupByDateTrackPojo != null){
+                // TODO remove hardcoded measures
                 dateView.setText(groupByDateTrackPojo.getRecord_date());
                 distanceView.setText(String.format("%s m", groupByDateTrackPojo.getTotal_distance()));
                 recordView.setText(String.valueOf(groupByDateTrackPojo.getNumber_of_records()));

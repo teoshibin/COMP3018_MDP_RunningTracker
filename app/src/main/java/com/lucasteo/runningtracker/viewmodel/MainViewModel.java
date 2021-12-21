@@ -79,10 +79,6 @@ public class MainViewModel extends AndroidViewModel {
     //region VM and Repo Interaction
     //--------------------------------------------------------------------------------------------//
 
-    public void insert(Track track) {
-        repository.insert(track);
-    }
-
     public LiveData<List<Track>> getAllTracks() {
         return allTracks;
     }
