@@ -17,7 +17,7 @@ public class RTRepository {
 
     // Data
     private LiveData<List<Track>> allTracks;
-//    private LiveData<List<Track>> queriedTracks;
+    private LiveData<Track> lastTrack;
     private LiveData<List<GroupByDateTrackPojo>> allGroupByDateTracks;
 
     /**
@@ -33,33 +33,10 @@ public class RTRepository {
 
         // initialize data
         allTracks = trackDao.getTracks();
+        lastTrack = trackDao.getLastTrack();
         allGroupByDateTracks = trackDao.getGroupByDateTracks();
 
-
-//        queriedTracks = loadTracksWithDateRange(DateRange.TODAY);
-
-
-//        RTRoomDatabase.databaseWriteExecutor.execute(() -> {
-//             statisticPojo = trackDao.getTracksStatistics();
-//        });
-
-
-//        Log.d("runningTracker", "RTRepository: " + statisticPojo);
-
     }
-
-//    public enum DateRange{
-//        PAST_ONE_DAY,
-//        PAST_ONE_WEEK,
-//        PAST_ONE_MONTH,
-//        PAST_ONE_YEAR,
-//        TODAY,
-//        YESTERDAY,
-//        THIS_WEEK_STARTING_FROM_SUNDAY,
-//        THIS_WEEK_STARTING_FROM_MONDAY,
-//        THIS_MONTH,
-//        THIS_YEAR,
-//    }
 
     // standard queries
 
@@ -75,57 +52,18 @@ public class RTRepository {
         });
     }
 
-//    public LiveData<List<Track>> loadTracksWithDateRange(DateRange dateRange){
-//        LiveData<List<Track>> temp = null;
-//        switch (dateRange){
-//            case PAST_ONE_DAY:
-//                temp = trackDao.getTracksPastOneDay();
-//                break;
-//            case PAST_ONE_WEEK:
-//                temp = trackDao.getTracksPastOneWeek();
-//                break;
-//            case PAST_ONE_MONTH:
-//                temp = trackDao.getTracksPastOneMonth();
-//                break;
-//            case PAST_ONE_YEAR:
-//                temp = trackDao.getTracksPastOneYear();
-//                break;
-//            case TODAY:
-//                temp = trackDao.getTracksToday();
-//                break;
-//            case YESTERDAY:
-//                temp = trackDao.getTracksYesterday();
-//                break;
-//            case THIS_WEEK_STARTING_FROM_SUNDAY:
-//                temp = trackDao.getTracksThisWeekSUN();
-//                break;
-//            case THIS_WEEK_STARTING_FROM_MONDAY:
-//                temp = trackDao.getTracksThisWeekMON();
-//                break;
-//            case THIS_MONTH:
-//                temp = trackDao.getTracksThisMonth();
-//                break;
-//            case THIS_YEAR:
-//                temp = trackDao.getTracksThisYear();
-//                break;
-//        }
-//        return temp;
-//    }
-
     // setter getter
 
     public LiveData<List<Track>> getAllTracks() {
         return allTracks;
     }
 
+    public LiveData<Track> getLastTrack(){
+        return lastTrack;
+    }
+
     public LiveData<List<GroupByDateTrackPojo>> getAllGroupByDateTracks(){
         return allGroupByDateTracks;
     }
-
-//    public LiveData<List<Track>> getQueriedTracks(){
-//        return queriedTracks;
-//    }
-
-
 
 }

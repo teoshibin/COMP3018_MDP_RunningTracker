@@ -33,15 +33,19 @@ public class MainViewModel extends AndroidViewModel {
     // save instance state value keys
     private static final String SAVED_KEY_SERVICE_STARTED = "serviceStarted";
     private static final String SAVED_KEY_SPEED_STATUS = "speedStatus";
+    private static final String SAVED_KEY_STOP_MOVING = "stopMoving";
 
     // repo
     private RTRepository repository;
     private final LiveData<List<Track>> allTracks;
+    private final LiveData<Track> lastTrack;
     private final LiveData<List<GroupByDateTrackPojo>> allGroupByDateTracks;
 
     // UI states
     private MutableLiveData<Boolean> serviceStatus;
-    private MutableLiveData<SpeedStatus> speedStatus;
+//    private MutableLiveData<SpeedStatus> speedStatus;
+    private MutableLiveData<Boolean> stopMoving;
+    private boolean justStarted = true;
 
     //--------------------------------------------------------------------------------------------//
     //endregion
@@ -58,19 +62,24 @@ public class MainViewModel extends AndroidViewModel {
 
         // init variables default
         serviceStatus = new MutableLiveData<>(Boolean.FALSE);
-        speedStatus = new MutableLiveData<>(null);
+        stopMoving = new MutableLiveData<>(Boolean.TRUE);
+//        speedStatus = new MutableLiveData<>(null);
 
         // retrieve saved instance state
         if (savedStateHandle.contains(SAVED_KEY_SERVICE_STARTED)){
             serviceStatus.setValue(savedStateHandle.get(SAVED_KEY_SERVICE_STARTED));
         }
-        if (savedStateHandle.contains(SAVED_KEY_SPEED_STATUS)){
-            speedStatus.setValue(savedStateHandle.get(SAVED_KEY_SPEED_STATUS));
+//        if (savedStateHandle.contains(SAVED_KEY_SPEED_STATUS)){
+//            speedStatus.setValue(savedStateHandle.get(SAVED_KEY_SPEED_STATUS));
+//        }
+        if (savedStateHandle.contains(SAVED_KEY_STOP_MOVING)){
+            stopMoving.setValue(savedStateHandle.get(SAVED_KEY_STOP_MOVING));
         }
 
         // repo stuff
         repository = new RTRepository(application);
         allTracks = repository.getAllTracks();
+        lastTrack = repository.getLastTrack();
         allGroupByDateTracks = repository.getAllGroupByDateTracks();
 
     }
@@ -94,6 +103,10 @@ public class MainViewModel extends AndroidViewModel {
         return allGroupByDateTracks;
     }
 
+    public LiveData<Track> getLastTrack(){
+        return lastTrack;
+    }
+
     //--------------------------------------------------------------------------------------------//
     //endregion
 
@@ -113,18 +126,45 @@ public class MainViewModel extends AndroidViewModel {
         return serviceStatus.getValue() != null ? serviceStatus.getValue() : false;
     }
 
-    public MutableLiveData<SpeedStatus> getSpeedStatus() {
-        return speedStatus;
+    //--
+
+    public MutableLiveData<Boolean> getStopMoving(){
+        return stopMoving;
     }
 
-    public void setValueSpeedStatus(SpeedStatus value) {
-        speedStatus.setValue(value);
-        savedState.set(SAVED_KEY_SPEED_STATUS, value);
+    public void toggleStopMoving(){
+        boolean value = !stopMoving.getValue();
+        stopMoving.setValue(value);
+        savedState.set(SAVED_KEY_STOP_MOVING, value);
     }
 
-    public SpeedStatus getValueSpeedStatus(){
-        return speedStatus.getValue();
+    public void setValueStopMoving(boolean value){
+        stopMoving.setValue(value);
+        savedState.set(SAVED_KEY_STOP_MOVING, value);
     }
+
+    public boolean getValueStopMoving(){
+        return stopMoving.getValue();
+    }
+
+    public boolean isJustStarted() {
+        return justStarted;
+    }
+
+    public void setJustStarted(boolean justStarted) {
+        this.justStarted = justStarted;
+    }
+
+    //--
+
+//    public MutableLiveData<SpeedStatus> getSpeedStatus() {
+//        return speedStatus;
+//    }
+
+//    public void setValueSpeedStatus(SpeedStatus value) {
+//        speedStatus.setValue(value);
+//        savedState.set(SAVED_KEY_SPEED_STATUS, value);
+//    }
 
     //--------------------------------------------------------------------------------------------//
     //endregion

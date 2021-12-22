@@ -50,6 +50,40 @@ public class ComponentAnimator {
         textView.startAnimation(fadeOut);
     }
 
+    /**
+     * overloading method for passing in String
+     *
+     * @param textView textView
+     * @param animationDuration milli sec for fade in and out
+     * @param initialDelay milli sec for delay before starting the animation
+     * @param text string to set
+     */
+    public void textViewFadeSetText(TextView textView, int animationDuration, int initialDelay, String text){
+
+        final AlphaAnimation fadeOut = getFadeOut(animationDuration, initialDelay);
+        final AlphaAnimation fadeIn = getFadeIn(animationDuration, 0);
+
+        fadeOut.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                textView.setText(text);
+                textView.startAnimation(fadeIn);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        textView.startAnimation(fadeOut);
+    }
+
     public void imageViewFadeSetResource(ImageView imageView, int animationDuration, int initialDelay, int resid){
 
         final AlphaAnimation fadeOut = getFadeOut(animationDuration, initialDelay);

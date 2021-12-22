@@ -15,6 +15,8 @@
     <string name="status_running">Running</string>
     <string name="status_cycling">Cycling</string>
     <string name="status_too_fast">Too Fast</string>
+    <string name="zero_speed">0</string>
+    <string name="empty_speed">-</string>
 
     <!--  stats fragment  -->
     <string name="group_by_date_track_item_date">Date</string>
@@ -23,4 +25,6 @@
     <string name="group_by_date_track_item_max_speed">Max Speed</string>
     <string name="group_by_date_track_item_records">Records Count</string>
 
+    <!--  unit  -->
+    <string name="meter_per_second">m/s</string>
 </resources>

@@ -56,11 +56,17 @@ public class TrackerService extends Service {
     private double distance = 0;
     private SpeedStatus speedStatus = null;
 
-    // standing detection (thread stuff)
-    private boolean stopMoving = true;
+    /// standing detection (thread stuff)
+    // mutually altered boolean (location listener set it to false, standing detection thread set it to true)
+    private boolean flipFlop = true;
+    // to turn on and off standing detection thread
     private boolean detecting = true;
+    // time delay count for one complete detection
     private final int defaultCount = 40;
+    // time delay count that is being decremented
     private int count = defaultCount;
+    // actual output of standing detection
+    private boolean stopMoving = false;
 
     //--------------------------------------------------------------------------------------------//
     //endregion
@@ -156,9 +162,8 @@ public class TrackerService extends Service {
                     distance = prevLocation.distanceTo(location);
                 }
 
-                // detect standing
-                count = defaultCount;
-                stopMoving = false;
+                // detect user stop moving
+                resetStopMovingDetection();
 
                 Log.d(TAG, "onLocationChanged: Moving");
 //                Log.d(TAG, "onLocationChanged: \n" +
@@ -169,12 +174,13 @@ public class TrackerService extends Service {
 //                        "\tSpeed (m/s): " + location.getSpeed() + "\n"
 //                );
 
-                SpeedStatus newSpeedStatus = SpeedStatus.classifyWithScaledThreshold(location.getSpeed());
+//                SpeedStatus newSpeedStatus = SpeedStatus.classifyWithScaledThreshold(location.getSpeed());
+                speedStatus = SpeedStatus.classifyWithScaledThreshold(location.getSpeed());
 
-                if (newSpeedStatus != speedStatus){
-                    speedStatus = newSpeedStatus;
-                    doSpeedStatusUpdateCallback(speedStatus);
-                }
+//                if (newSpeedStatus != speedStatus){
+//                    speedStatus = newSpeedStatus;
+//                    doSpeedStatusUpdateCallback(speedStatus);
+//                }
 
                 repository.insert(
                         new Track(
@@ -231,6 +237,9 @@ public class TrackerService extends Service {
         public boolean getTrackerServiceIsRunning(){
             return isRunning();
         }
+        public boolean getTrackerServiceStopMoving(){
+            return getStopMoving();
+        }
 
         // callback methods
         public void registerCallback(ICallback callback) {
@@ -246,10 +255,18 @@ public class TrackerService extends Service {
     }
 
     // callback loops
-    public void doSpeedStatusUpdateCallback(SpeedStatus status) {
+//    public void doSpeedStatusUpdateCallback(SpeedStatus status) {
+//        final int n = remoteCallbackList.beginBroadcast();
+//        for (int i=0; i<n; i++) {
+//            remoteCallbackList.getBroadcastItem(i).callback.speedStatusUpdate(status);
+//        }
+//        remoteCallbackList.finishBroadcast();
+//    }
+
+    public void doStopMovingEventCallback() {
         final int n = remoteCallbackList.beginBroadcast();
         for (int i=0; i<n; i++) {
-            remoteCallbackList.getBroadcastItem(i).callback.speedStatusUpdate(status);
+            remoteCallbackList.getBroadcastItem(i).callback.onStopMovingUpdateEvent(stopMoving);
         }
         remoteCallbackList.finishBroadcast();
     }
@@ -271,19 +288,22 @@ public class TrackerService extends Service {
             public void run() {
                 try {
 
-                    // reset detecting to true at the beginning
+                    // reset value at the beginning
                     detecting = true;
+                    stopMoving = false;
+
                     while(detecting){
 
                         // location listener will set this to false on every location update
-                        stopMoving = true;
+                        flipFlop = true;
                         // location listener will reset this to default count on every location update
                         count = defaultCount;
 
                         // if delay count is positive and still detecting then sleep
-                        while(count > 0 && detecting){
+                        while(detecting && count > 0){
                             Thread.sleep(250);
                             count -= 1;
+                            Log.d(TAG, "run: " + count);
                         }
 
                         // if stop moving is not set to false by location listener then
@@ -292,9 +312,21 @@ public class TrackerService extends Service {
                         //         only update when the status is different
                         //         if this part of the code is reached bcs of detecting = false then
                         //         abort checking as the detection is closed
-                        if (stopMoving && speedStatus != SpeedStatus.STANDING && detecting){
-                            speedStatus = SpeedStatus.STANDING;
-                            doSpeedStatusUpdateCallback(speedStatus);
+//                        if (flipFlop && speedStatus != SpeedStatus.STANDING && detecting){
+//                            speedStatus = SpeedStatus.STANDING;
+//                            doSpeedStatusUpdateCallback(speedStatus);
+//
+//                        }
+
+                        // if stop moving is not set to false by location listener then
+                        // the user must have stop moving over 250 ms * 40 count = 10 seconds
+                        //     EXTRA NOTE:
+                        //         only update when the status is different
+                        //         if this part of the code is reached bcs of detecting = false then
+                        //         abort checking as the detection is closed
+                        if (detecting && flipFlop){
+                            stopMoving = true;
+                            doStopMovingEventCallback();
                         }
                     }
                 } catch (InterruptedException e) {
@@ -304,6 +336,25 @@ public class TrackerService extends Service {
         }).start();
 
         serviceStatus = ServiceStatus.JUST_STARTED;
+    }
+
+    /**
+     * location listener uses this to reset the standing detection and allow it to continue detecting
+     */
+    private void resetStopMovingDetection(){
+        count = defaultCount;
+        flipFlop = false;
+        if (stopMoving){
+            stopMoving = false;
+            doStopMovingEventCallback();
+        }
+    }
+
+    /**
+     * halt stop moving detection thread
+     */
+    private void stopStopMovingDetection(){
+        detecting = false;
     }
 
     private void stopListening(){
@@ -317,7 +368,7 @@ public class TrackerService extends Service {
         speedStatus = null;
 
         // detecting standing
-        detecting = false;
+        stopStopMovingDetection();
     }
 
     private void stopService(){
@@ -329,6 +380,10 @@ public class TrackerService extends Service {
 
     private boolean isRunning(){
         return ((serviceStatus == ServiceStatus.RUNNING) || (serviceStatus == ServiceStatus.JUST_STARTED));
+    }
+
+    private boolean getStopMoving(){
+        return stopMoving;
     }
 
     //--------------------------------------------------------------------------------------------//

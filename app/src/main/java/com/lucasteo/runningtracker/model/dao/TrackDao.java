@@ -25,6 +25,9 @@ public interface TrackDao {
     @Query("SELECT * FROM track_table ORDER BY trackID ASC")
     LiveData<List<Track>> getTracks();
 
+    @Query("SELECT * FROM track_table ORDER BY trackID DESC LIMIT 1")
+    LiveData<Track> getLastTrack();
+
     @Query("SELECT " +
             "count(trackID) AS number_of_records, " +
             "round(sum(distance),2) AS total_distance, " +

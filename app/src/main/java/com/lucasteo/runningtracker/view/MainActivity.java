@@ -23,7 +23,6 @@ import android.util.Log;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.lucasteo.runningtracker.R;
 import com.lucasteo.runningtracker.service.ICallback;
-import com.lucasteo.runningtracker.calculation.SpeedStatus;
 import com.lucasteo.runningtracker.service.TrackerService;
 import com.lucasteo.runningtracker.view_model.MainViewModel;
 
@@ -153,15 +152,29 @@ public class MainActivity extends AppCompatActivity {
         trackerServiceBinder.pauseTrackerService();
     }
 
+    public boolean getTrackerServiceUserStopMoving(){
+        return trackerServiceBinder.getTrackerServiceStopMoving();
+    }
+
     private final ICallback callback = new ICallback() {
         // to use this remember to use runOnUiThread new Runnable()
 
+//        @Override
+//        public void speedStatusUpdate(SpeedStatus status) {
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    viewModel.setValueSpeedStatus(status);
+//                }
+//            });
+//        }
+
         @Override
-        public void speedStatusUpdate(SpeedStatus status) {
+        public void onStopMovingUpdateEvent(boolean value) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    viewModel.setValueSpeedStatus(status);
+                    viewModel.setValueStopMoving(value);
                 }
             });
         }
@@ -177,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
             trackerServiceBinder.registerCallback(callback);
 
             viewModel.setValueServiceStatus(trackerServiceBinder.getTrackerServiceIsRunning()); // as service existed change status to started
+            viewModel.setValueStopMoving(trackerServiceBinder.getTrackerServiceStopMoving());
         }
 
         @Override
