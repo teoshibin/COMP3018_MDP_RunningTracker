@@ -8,19 +8,16 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.lucasteo.runningtracker.R;
 import com.lucasteo.runningtracker.animation.ComponentAnimator;
-import com.lucasteo.runningtracker.service.SpeedStatus;
-import com.lucasteo.runningtracker.viewmodel.MainViewModel;
+import com.lucasteo.runningtracker.calculation.SpeedStatus;
+import com.lucasteo.runningtracker.view_model.MainViewModel;
 
 /**
  * A simple {@link Fragment} subclass.

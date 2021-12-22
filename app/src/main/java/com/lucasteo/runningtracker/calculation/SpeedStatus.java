@@ -1,4 +1,4 @@
-package com.lucasteo.runningtracker.service;
+package com.lucasteo.runningtracker.calculation;
 
 public enum SpeedStatus {
 

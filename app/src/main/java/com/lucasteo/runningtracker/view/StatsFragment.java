@@ -14,9 +14,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.lucasteo.runningtracker.R;
-import com.lucasteo.runningtracker.viewHelper.GroupByDateTrackAdapter;
-import com.lucasteo.runningtracker.viewHelper.SpacingItemDecorator;
-import com.lucasteo.runningtracker.viewmodel.MainViewModel;
+import com.lucasteo.runningtracker.view_helper.GroupByDateTrackAdapter;
+import com.lucasteo.runningtracker.view_helper.SpacingItemDecorator;
+import com.lucasteo.runningtracker.view_model.MainViewModel;
 
 
 /**

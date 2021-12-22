@@ -23,9 +23,9 @@ import android.util.Log;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.lucasteo.runningtracker.R;
 import com.lucasteo.runningtracker.service.ICallback;
-import com.lucasteo.runningtracker.service.SpeedStatus;
+import com.lucasteo.runningtracker.calculation.SpeedStatus;
 import com.lucasteo.runningtracker.service.TrackerService;
-import com.lucasteo.runningtracker.viewmodel.MainViewModel;
+import com.lucasteo.runningtracker.view_model.MainViewModel;
 
 import java.util.Objects;
 

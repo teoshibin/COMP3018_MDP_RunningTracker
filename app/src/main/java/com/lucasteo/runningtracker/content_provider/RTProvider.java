@@ -1,4 +1,4 @@
-package com.lucasteo.runningtracker.contentProvider;
+package com.lucasteo.runningtracker.content_provider;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;

@@ -1,4 +1,4 @@
-package com.lucasteo.runningtracker.calculations;
+package com.lucasteo.runningtracker.calculation;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;

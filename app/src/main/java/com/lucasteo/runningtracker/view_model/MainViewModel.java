@@ -1,4 +1,4 @@
-package com.lucasteo.runningtracker.viewmodel;
+package com.lucasteo.runningtracker.view_model;
 
 import android.app.Application;
 import android.util.Log;
@@ -7,13 +7,12 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateHandle;
 
 import com.lucasteo.runningtracker.model.GroupByDateTrackPojo;
 import com.lucasteo.runningtracker.model.RTRepository;
 import com.lucasteo.runningtracker.model.Track;
-import com.lucasteo.runningtracker.service.SpeedStatus;
+import com.lucasteo.runningtracker.calculation.SpeedStatus;
 
 import java.util.List;
 

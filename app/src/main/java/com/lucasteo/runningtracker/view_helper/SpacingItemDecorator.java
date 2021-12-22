@@ -1,4 +1,4 @@
-package com.lucasteo.runningtracker.viewHelper;
+package com.lucasteo.runningtracker.view_helper;
 
 import android.graphics.Rect;
 import android.view.View;

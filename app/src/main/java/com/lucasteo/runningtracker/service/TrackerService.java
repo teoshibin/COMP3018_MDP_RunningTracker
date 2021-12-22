@@ -22,6 +22,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.lucasteo.runningtracker.R;
+import com.lucasteo.runningtracker.calculation.SpeedStatus;
 import com.lucasteo.runningtracker.view.MainActivity;
 import com.lucasteo.runningtracker.model.RTRepository;
 import com.lucasteo.runningtracker.model.Track;
@@ -29,7 +30,6 @@ import com.lucasteo.runningtracker.model.Track;
 import java.util.Date;
 
 public class TrackerService extends Service {
-
 
     //region VARIABLES
     //--------------------------------------------------------------------------------------------//
@@ -76,12 +76,13 @@ public class TrackerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // return super.onStartCommand(intent, flags, startId);
+
         Log.d(TAG, "onStartCommand: Tracker Service");
 
         // setup repository instance
         repository = new RTRepository(getApplication());
 
+        // start foreground notification
         createNotification();
 
         return Service.START_STICKY;
@@ -90,7 +91,7 @@ public class TrackerService extends Service {
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy: Tracker Service");
-        removeNotification();
+        removeNotification(); // when the service is fully removed, remove foreground notification
         super.onDestroy();
     }
 
@@ -111,29 +112,12 @@ public class TrackerService extends Service {
     public boolean onUnbind(Intent intent) {
         Log.d(TAG, "onUnbind: Tracker Service");
 
+        // stop this service if it is not running on unbind
         if(serviceStatus != ServiceStatus.JUST_STARTED && serviceStatus != ServiceStatus.RUNNING){
             stopService();
         }
 
         return true; // to trigger onRebind
-    }
-
-    @Override
-    public void onLowMemory() {
-        Log.d(TAG, "onLowMemory: Tracker Service");
-        super.onLowMemory();
-    }
-
-    @Override
-    public void onTrimMemory(int level) {
-        Log.d(TAG, "onTrimMemory: Tracker Service");
-        super.onTrimMemory(level);
-    }
-
-    @Override
-    public void onTaskRemoved(Intent rootIntent) {
-        Log.d(TAG, "onTaskRemoved: Tracker Service");
-        super.onTaskRemoved(rootIntent);
     }
 
     //--------------------------------------------------------------------------------------------//
