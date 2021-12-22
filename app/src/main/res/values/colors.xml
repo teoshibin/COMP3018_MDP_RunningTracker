@@ -10,6 +10,7 @@
     <color name="dark_dark_blue">#FF171E40</color>
     <color name="dark_dark_dark_blue">#FF090F2B</color>
 
+    <color name="temp">#30385f</color>
     <!--  theme color  -->
     <color name="prussian_blue">#FF003559</color>
     <color name="dark_prussian_blue">#00243C</color>
