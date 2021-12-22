@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.lucasteo.runningtracker.R;
-import com.lucasteo.runningtracker.model.GroupByDateTrackPojo;
+import com.lucasteo.runningtracker.model.pojo.GroupByDateTrackPojo;
 
 import java.util.ArrayList;
 import java.util.List;

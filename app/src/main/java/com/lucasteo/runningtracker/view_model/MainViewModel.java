@@ -9,9 +9,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 
-import com.lucasteo.runningtracker.model.GroupByDateTrackPojo;
+import com.lucasteo.runningtracker.model.pojo.GroupByDateTrackPojo;
 import com.lucasteo.runningtracker.model.RTRepository;
-import com.lucasteo.runningtracker.model.Track;
+import com.lucasteo.runningtracker.model.entity.Track;
 import com.lucasteo.runningtracker.calculation.SpeedStatus;
 
 import java.util.List;

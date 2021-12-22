@@ -25,7 +25,7 @@ import com.lucasteo.runningtracker.R;
 import com.lucasteo.runningtracker.calculation.SpeedStatus;
 import com.lucasteo.runningtracker.view.MainActivity;
 import com.lucasteo.runningtracker.model.RTRepository;
-import com.lucasteo.runningtracker.model.Track;
+import com.lucasteo.runningtracker.model.entity.Track;
 
 import java.util.Date;
 

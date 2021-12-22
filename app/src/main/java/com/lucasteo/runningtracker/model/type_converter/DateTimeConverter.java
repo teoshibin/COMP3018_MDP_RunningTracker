@@ -1,4 +1,4 @@
-package com.lucasteo.runningtracker.model;
+package com.lucasteo.runningtracker.model.type_converter;
 
 import androidx.room.TypeConverter;
 

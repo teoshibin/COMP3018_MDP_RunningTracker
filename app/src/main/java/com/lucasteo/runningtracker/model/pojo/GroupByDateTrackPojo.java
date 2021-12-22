@@ -1,6 +1,4 @@
-package com.lucasteo.runningtracker.model;
-
-import java.util.Date;
+package com.lucasteo.runningtracker.model.pojo;
 
 public class GroupByDateTrackPojo {
     private int number_of_records;

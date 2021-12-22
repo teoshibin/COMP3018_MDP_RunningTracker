@@ -10,6 +10,10 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import com.lucasteo.runningtracker.model.dao.TrackDao;
+import com.lucasteo.runningtracker.model.entity.Track;
+import com.lucasteo.runningtracker.model.type_converter.DateTimeConverter;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 

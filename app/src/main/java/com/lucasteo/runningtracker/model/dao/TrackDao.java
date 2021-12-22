@@ -1,10 +1,13 @@
-package com.lucasteo.runningtracker.model;
+package com.lucasteo.runningtracker.model.dao;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+
+import com.lucasteo.runningtracker.model.pojo.GroupByDateTrackPojo;
+import com.lucasteo.runningtracker.model.entity.Track;
 
 import java.util.List;
 

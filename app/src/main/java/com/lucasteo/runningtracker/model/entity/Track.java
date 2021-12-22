@@ -1,4 +1,4 @@
-package com.lucasteo.runningtracker.model;
+package com.lucasteo.runningtracker.model.entity;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
