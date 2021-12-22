@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.lucasteo.runningtracker.R;
@@ -32,6 +33,8 @@ public class HomeFragment extends Fragment {
     // UI components
     private Button serviceBtn;
     private TextView statusTextView;
+    private ImageView statusImageView;
+
 
     // animation
     private final ComponentAnimator animator = new ComponentAnimator();
@@ -74,6 +77,7 @@ public class HomeFragment extends Fragment {
         // look for UI components
         serviceBtn = requireView().findViewById(R.id.button);
         statusTextView = requireView().findViewById(R.id.statusTextView);
+        statusImageView = requireView().findViewById(R.id.statusImageView);
 
         // button onClick
         serviceBtn.setOnClickListener(new View.OnClickListener() {
@@ -93,39 +97,41 @@ public class HomeFragment extends Fragment {
         viewModel.getSpeedStatus().observe(requireActivity(), new Observer<SpeedStatus>() {
             @Override
             public void onChanged(SpeedStatus status) {
-                int resid = R.string.status_sleeping;
+                int textResid = R.string.status_sleeping;
+                int imageResid = R.drawable.ic_baseline_hotel_24;
 
                 if (status != null) {
                     switch (status){
                         case STANDING:
-                            resid = R.string.status_standing;
+                            textResid = R.string.status_standing;
+                            imageResid = R.drawable.ic_baseline_nature_people_24;
                             break;
                         case WALKING:
-                            resid = R.string.status_walking;
+                            textResid = R.string.status_walking;
+                            imageResid = R.drawable.ic_baseline_elderly_24;
                             break;
                         case JOGGING:
-                            resid = R.string.status_jogging;
+                            textResid = R.string.status_jogging;
+                            imageResid = R.drawable.ic_baseline_directions_walk_24;
                             break;
                         case RUNNING:
-                            resid = R.string.status_running;
+                            textResid = R.string.status_running;
+                            imageResid = R.drawable.ic_baseline_directions_run_24;
                             break;
                         case CYCLING:
-                            resid = R.string.status_cycling;
+                            textResid = R.string.status_cycling;
+                            imageResid = R.drawable.ic_baseline_directions_bike_24;
                             break;
                         case DRIVING:
-                            resid = R.string.status_too_fast;
+                            textResid = R.string.status_too_fast;
+                            imageResid = R.drawable.ic_baseline_directions_car_24;
                             break;
                     }
                 }
 
-//                if (statusTextView.getText() != getResources().getString(resid)){
-//                }
-//                if (justStarted){
-//                    statusTextView.setText(resid);
-//                    justStarted = false;
-//                } else {
-                    animator.textViewFadeSetText(statusTextView, animDuration, resid);
-//                }
+                animator.textViewFadeSetText(statusTextView, animDuration, 0, textResid);
+                animator.imageViewFadeSetResource(statusImageView, animDuration, 250, imageResid);
+
             }
         });
 

@@ -60,11 +60,11 @@
         app:layout_constraintVertical_bias="0.914" />
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/statusImageView"
         style="@style/imageIcon"
         android:layout_width="66dp"
         android:layout_height="70dp"
-        android:src="@drawable/ic_baseline_hotel_24"
+        android:src="@android:color/transparent"
         app:layout_constraintBottom_toBottomOf="@+id/progress_bar"
         app:layout_constraintEnd_toEndOf="@+id/progress_bar"
         app:layout_constraintStart_toStartOf="@+id/progress_bar"
