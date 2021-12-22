@@ -15,16 +15,18 @@ public class Track {
     private final double distance;
     private final double altitude;
     private final double speed;
+    private final String activity;
     private final Date createdTime;
 
     public Track(int trackID, double latitude, double longitude,
-                 double distance, double altitude, double speed, Date createdTime) {
+                 double distance, double altitude, double speed, String activity, Date createdTime) {
         this.trackID = trackID;
         this.latitude = latitude;
         this.longitude = longitude;
         this.distance = distance;
         this.altitude = altitude;
         this.speed = speed;
+        this.activity = activity;
         this.createdTime = createdTime;
     }
 
@@ -45,6 +47,9 @@ public class Track {
     }
     public double getSpeed() {
         return speed;
+    }
+    public String getActivity() {
+        return activity;
     }
     public Date getCreatedTime() {
         return createdTime;

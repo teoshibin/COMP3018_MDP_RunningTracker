@@ -12,9 +12,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.lucasteo.runningtracker.R;
+import com.lucasteo.runningtracker.animation.ComponentAnimator;
+import com.lucasteo.runningtracker.service.SpeedStatus;
 import com.lucasteo.runningtracker.viewmodel.MainViewModel;
 
 /**
@@ -29,6 +34,11 @@ public class HomeFragment extends Fragment {
 
     // UI components
     private Button serviceBtn;
+    private TextView statusTextView;
+
+    // animation
+    private final ComponentAnimator animator = new ComponentAnimator();
+    private final int animDuration = 250;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -66,6 +76,7 @@ public class HomeFragment extends Fragment {
 
         // look for UI components
         serviceBtn = requireView().findViewById(R.id.button);
+        statusTextView = requireView().findViewById(R.id.statusTextView);
 
         // button onClick
         serviceBtn.setOnClickListener(new View.OnClickListener() {
@@ -82,17 +93,61 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        viewModel.getSpeedStatus().observe(requireActivity(), new Observer<SpeedStatus>() {
+            @Override
+            public void onChanged(SpeedStatus status) {
+                int resid = R.string.status_sleeping;
+
+                if (status != null) {
+                    switch (status){
+                        case STANDING:
+                            resid = R.string.status_standing;
+                            break;
+                        case WALKING:
+                            resid = R.string.status_walking;
+                            break;
+                        case JOGGING:
+                            resid = R.string.status_jogging;
+                            break;
+                        case RUNNING:
+                            resid = R.string.status_running;
+                            break;
+                        case CYCLING:
+                            resid = R.string.status_cycling;
+                            break;
+                        case DRIVING:
+                            resid = R.string.status_too_fast;
+                            break;
+                    }
+                }
+
+//                if (statusTextView.getText() != getResources().getString(resid)){
+//                }
+//                if (justStarted){
+//                    statusTextView.setText(resid);
+//                    justStarted = false;
+//                } else {
+                    animator.textViewFadeSetText(statusTextView, animDuration, resid);
+//                }
+            }
+        });
+
         // change button text dynamically
         viewModel.getServiceStatus().observe(requireActivity(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
                 if (aBoolean){
                     serviceBtn.setText(R.string.btnStop);
+//                    viewModel.getSpeedStatus().observe(requireActivity(), speedStatusObserver);
                 } else {
                     serviceBtn.setText(R.string.btnStart);
+                    viewModel.setValueSpeedStatus(null);
+//                    viewModel.getSpeedStatus().removeObserver(speedStatusObserver);
+
                 }
             }
         });
 
     }
+
 }

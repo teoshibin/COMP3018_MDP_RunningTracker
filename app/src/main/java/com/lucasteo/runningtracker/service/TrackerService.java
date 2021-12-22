@@ -20,7 +20,6 @@ import android.os.RemoteCallbackList;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
 
 import com.lucasteo.runningtracker.R;
 import com.lucasteo.runningtracker.view.MainActivity;
@@ -28,7 +27,6 @@ import com.lucasteo.runningtracker.model.RTRepository;
 import com.lucasteo.runningtracker.model.Track;
 
 import java.util.Date;
-import java.util.List;
 
 public class TrackerService extends Service {
 
@@ -51,11 +49,18 @@ public class TrackerService extends Service {
     private RTRepository repository;
     private LocationManager locationManager;
     private TrackerLocationListener locationListener;
-    private Status status = Status.STARTED;
+    private ServiceStatus serviceStatus = ServiceStatus.STARTED;
 
     // location calculation
     private Location prevLocation;
     private double distance = 0;
+    private SpeedStatus speedStatus = null;
+
+    // standing detection (thread stuff)
+    private boolean stopMoving = true;
+    private boolean detecting = true;
+    private final int defaultCount = 40;
+    private int count = defaultCount;
 
     //--------------------------------------------------------------------------------------------//
     //endregion
@@ -106,7 +111,7 @@ public class TrackerService extends Service {
     public boolean onUnbind(Intent intent) {
         Log.d(TAG, "onUnbind: Tracker Service");
 
-        if(status != Status.JUST_STARTED && status != Status.RUNNING){
+        if(serviceStatus != ServiceStatus.JUST_STARTED && serviceStatus != ServiceStatus.RUNNING){
             stopService();
         }
 
@@ -137,7 +142,7 @@ public class TrackerService extends Service {
     //region CALLBACKS & MAIN SERVICE
     //--------------------------------------------------------------------------------------------//
 
-    public enum Status{
+    public enum ServiceStatus {
         STARTED(1),
         JUST_STARTED(2),
         RUNNING(3),
@@ -146,7 +151,7 @@ public class TrackerService extends Service {
 
         private final int value;
 
-        Status(int value) {
+        ServiceStatus(int value) {
             this.value = value;
         }
 
@@ -161,17 +166,32 @@ public class TrackerService extends Service {
         public void onLocationChanged(Location location) {
 
             // ignore calculation and data storing for the first location
-            if(status == Status.RUNNING){
+            if(serviceStatus == ServiceStatus.RUNNING){
+
                 if (prevLocation != null){
                     distance = prevLocation.distanceTo(location);
                 }
-                Log.d(TAG, "onLocationChanged: \n" +
-                        "\tLatitude: " + location.getLatitude() + "\n" +
-                        "\tLongitude: " + location.getLongitude() + "\n" +
-                        "\tDistance: " + distance + "\n" +
-                        "\tAltitude: " + location.getAltitude() + "\n" +
-                        "\tSpeed (m/s): " + location.getSpeed() + "\n"
-                );
+
+                // detect standing
+                count = defaultCount;
+                stopMoving = false;
+
+                Log.d(TAG, "onLocationChanged: Moving");
+//                Log.d(TAG, "onLocationChanged: \n" +
+//                        "\tLatitude: " + location.getLatitude() + "\n" +
+//                        "\tLongitude: " + location.getLongitude() + "\n" +
+//                        "\tDistance: " + distance + "\n" +
+//                        "\tAltitude: " + location.getAltitude() + "\n" +
+//                        "\tSpeed (m/s): " + location.getSpeed() + "\n"
+//                );
+
+                SpeedStatus newSpeedStatus = SpeedStatus.classifyWithScaledThreshold(location.getSpeed());
+
+                if (newSpeedStatus != speedStatus){
+                    speedStatus = newSpeedStatus;
+                    doSpeedStatusUpdateCallback(speedStatus);
+                }
+
                 repository.insert(
                         new Track(
                                 0,
@@ -180,11 +200,15 @@ public class TrackerService extends Service {
                                 distance,
                                 location.getAltitude(),
                                 location.getSpeed(),
+                                speedStatus.name(),
                                 new Date()
                         )
                 );
-            } else if (status == Status.JUST_STARTED){
-                status = Status.RUNNING;
+
+
+
+            } else if (serviceStatus == ServiceStatus.JUST_STARTED){
+                serviceStatus = ServiceStatus.RUNNING;
             }
             prevLocation = location; // init or continue storing previous location
 
@@ -238,20 +262,17 @@ public class TrackerService extends Service {
     }
 
     // callback loops
-    /*
-    public void doCallbacks(int progress) {
+    public void doSpeedStatusUpdateCallback(SpeedStatus status) {
         final int n = remoteCallbackList.beginBroadcast();
         for (int i=0; i<n; i++) {
-            remoteCallbackList.getBroadcastItem(i).callback.TrackerServiceLocationChange(null);
+            remoteCallbackList.getBroadcastItem(i).callback.speedStatusUpdate(status);
         }
         remoteCallbackList.finishBroadcast();
     }
-    */
 
     @SuppressLint("MissingPermission")
     private void startListening(){
 
-        // TODO fix location Manager not continue listening after minimizing task (google limited this)
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationListener = new TrackerLocationListener();
 
@@ -260,7 +281,45 @@ public class TrackerService extends Service {
                 1, // minimum distance between updates, in metres
                 locationListener);
 
-        status = Status.JUST_STARTED;
+        // detect standing if not moving for certain amount of time
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+
+                    // reset detecting to true at the beginning
+                    detecting = true;
+                    while(detecting){
+
+                        // location listener will set this to false on every location update
+                        stopMoving = true;
+                        // location listener will reset this to default count on every location update
+                        count = defaultCount;
+
+                        // if delay count is positive and still detecting then sleep
+                        while(count > 0 && detecting){
+                            Thread.sleep(250);
+                            count -= 1;
+                        }
+
+                        // if stop moving is not set to false by location listener then
+                        // the user must have stop moving over 250 ms * 40 count = 10 seconds
+                        //     EXTRA NOTE:
+                        //         only update when the status is different
+                        //         if this part of the code is reached bcs of detecting = false then
+                        //         abort checking as the detection is closed
+                        if (stopMoving && speedStatus != SpeedStatus.STANDING && detecting){
+                            speedStatus = SpeedStatus.STANDING;
+                            doSpeedStatusUpdateCallback(speedStatus);
+                        }
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+        serviceStatus = ServiceStatus.JUST_STARTED;
     }
 
     private void stopListening(){
@@ -270,18 +329,22 @@ public class TrackerService extends Service {
         locationListener = null;
         locationManager = null;
 
-        status = Status.PAUSED;
+        serviceStatus = ServiceStatus.PAUSED;
+        speedStatus = null;
+
+        // detecting standing
+        detecting = false;
     }
 
     private void stopService(){
-        status = Status.STOPPED;
+        serviceStatus = ServiceStatus.STOPPED;
         stopListening();
         removeNotification();
         stopSelf();
     }
 
     private boolean isRunning(){
-        return ((status == Status.RUNNING) || (status == Status.JUST_STARTED));
+        return ((serviceStatus == ServiceStatus.RUNNING) || (serviceStatus == ServiceStatus.JUST_STARTED));
     }
 
     //--------------------------------------------------------------------------------------------//

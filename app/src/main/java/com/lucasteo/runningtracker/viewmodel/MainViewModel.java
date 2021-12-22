@@ -7,11 +7,13 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.SavedStateHandle;
 
 import com.lucasteo.runningtracker.model.GroupByDateTrackPojo;
 import com.lucasteo.runningtracker.model.RTRepository;
 import com.lucasteo.runningtracker.model.Track;
+import com.lucasteo.runningtracker.service.SpeedStatus;
 
 import java.util.List;
 
@@ -31,6 +33,7 @@ public class MainViewModel extends AndroidViewModel {
 
     // save instance state value keys
     private static final String SAVED_KEY_SERVICE_STARTED = "serviceStarted";
+    private static final String SAVED_KEY_SPEED_STATUS = "speedStatus";
 
     // repo
     private RTRepository repository;
@@ -39,6 +42,7 @@ public class MainViewModel extends AndroidViewModel {
 
     // UI states
     private MutableLiveData<Boolean> serviceStatus;
+    private MutableLiveData<SpeedStatus> speedStatus;
 
     //--------------------------------------------------------------------------------------------//
     //endregion
@@ -55,10 +59,14 @@ public class MainViewModel extends AndroidViewModel {
 
         // init variables default
         serviceStatus = new MutableLiveData<>(Boolean.FALSE);
+        speedStatus = new MutableLiveData<>(null);
 
         // retrieve saved instance state
         if (savedStateHandle.contains(SAVED_KEY_SERVICE_STARTED)){
             serviceStatus.setValue(savedStateHandle.get(SAVED_KEY_SERVICE_STARTED));
+        }
+        if (savedStateHandle.contains(SAVED_KEY_SPEED_STATUS)){
+            speedStatus.setValue(savedStateHandle.get(SAVED_KEY_SPEED_STATUS));
         }
 
         // repo stuff
@@ -104,6 +112,19 @@ public class MainViewModel extends AndroidViewModel {
 
     public boolean getValueServiceStatus(){
         return serviceStatus.getValue() != null ? serviceStatus.getValue() : false;
+    }
+
+    public MutableLiveData<SpeedStatus> getSpeedStatus() {
+        return speedStatus;
+    }
+
+    public void setValueSpeedStatus(SpeedStatus value) {
+        speedStatus.setValue(value);
+        savedState.set(SAVED_KEY_SPEED_STATUS, value);
+    }
+
+    public SpeedStatus getValueSpeedStatus(){
+        return speedStatus.getValue();
     }
 
     //--------------------------------------------------------------------------------------------//

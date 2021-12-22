@@ -23,6 +23,7 @@ import android.util.Log;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.lucasteo.runningtracker.R;
 import com.lucasteo.runningtracker.service.ICallback;
+import com.lucasteo.runningtracker.service.SpeedStatus;
 import com.lucasteo.runningtracker.service.TrackerService;
 import com.lucasteo.runningtracker.viewmodel.MainViewModel;
 
@@ -154,6 +155,17 @@ public class MainActivity extends AppCompatActivity {
 
     private final ICallback callback = new ICallback() {
         // to use this remember to use runOnUiThread new Runnable()
+
+        @Override
+        public void speedStatusUpdate(SpeedStatus status) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    viewModel.setValueSpeedStatus(status);
+                }
+            });
+        }
+
     };
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {

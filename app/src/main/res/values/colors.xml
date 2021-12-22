@@ -5,10 +5,23 @@
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
     <color name="dark_blue">#FF3F51B5</color>
     <color name="grey_blue">#FF313960</color>
     <color name="dark_dark_blue">#FF171E40</color>
     <color name="dark_dark_dark_blue">#FF090F2B</color>
+
+    <!--  theme color  -->
+    <color name="prussian_blue">#FF003559</color>
+    <color name="dark_prussian_blue">#00243C</color>
+    <color name="dark_cyan">#FF009BA1</color>
+    <color name="light_grey">#FFEAEAEA</color>
+    <color name="grey">#D8D8D8</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+<!--    <color name="honolulu_blue">#FF006DAA</color>-->
+<!--    <color name="usafa_blue">#FF0353A4</color>-->
+<!--    <color name="oxford_blue">#FF061A40</color>-->
+<!--    <color name="beau_blue">#FFB9D6F2</color>-->
+
 </resources>
