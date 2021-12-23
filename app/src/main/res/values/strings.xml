@@ -15,8 +15,6 @@
     <string name="status_running">Running</string>
     <string name="status_cycling">Cycling</string>
     <string name="status_too_fast">Too Fast</string>
-    <string name="zero_speed">0</string>
-    <string name="empty_speed">-</string>
 
     <!--  stats fragment  -->
     <string name="group_by_date_track_item_date">Date</string>
@@ -25,6 +23,16 @@
     <string name="group_by_date_track_item_max_speed">Max Speed</string>
     <string name="group_by_date_track_item_records">Records Count</string>
 
+    <!--  alert  -->
+    <string name="alert_dialog_text_view">Goal</string>
+    <string name="save">SAVE</string>
+
     <!--  unit  -->
+    <string name="zero">0</string>
+    <string name="dash">-</string>
+    <string name="slash">/</string>
     <string name="meter_per_second">m/s</string>
+    <string name="meter">m</string>
+    <string name="invalid_value">Invalid Value</string>
+    <string name="dialog_goal_value_not_large_enough">Value Cannot be lower than </string>
 </resources>

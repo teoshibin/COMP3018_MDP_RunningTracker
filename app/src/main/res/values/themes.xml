@@ -14,13 +14,33 @@
 
         <!--  TextView  -->
         <item name="android:textColor">@color/dark_prussian_blue</item>
-        
+
+        <!--  window animation  -->
+        <item name="android:windowAnimationStyle">@style/window_animation</item>
+        <item name="android:editTextStyle">@style/EditText</item>
+
     </style>
+
     <style name="CircularDeterminateProgressBar">
         <item name="android:indeterminateOnly">false</item>
         <item name="android:progressDrawable">@drawable/circle</item>
     </style>
+
     <style name="imageIcon">
         <item name="android:tint">@color/prussian_blue</item>
+    </style>
+
+    <style name="imageViewButton" parent="@style/Widget.AppCompat.ActionButton">
+        <item name="android:tint">@color/prussian_blue</item>
+    </style>
+
+    <style name="EditText" parent="@style/Widget.AppCompat.EditText">
+        <item name="backgroundTint">@color/prussian_blue</item>
+        <item name="android:textColor">@color/prussian_blue</item>
+    </style>
+
+    <style name="window_animation">
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
     </style>
 </resources>

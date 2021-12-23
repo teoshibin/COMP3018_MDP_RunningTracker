@@ -28,7 +28,7 @@
                 <gradient
                     android:startColor="@color/dark_cyan"
                     android:endColor="@color/dark_prussian_blue"
-                    android:angle="315" />
+                    android:angle="-45" />
             </shape>
         </rotate>
     </item>

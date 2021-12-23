@@ -1,24 +1,30 @@
 package com.lucasteo.runningtracker.view;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.preference.PreferenceManager;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.lucasteo.runningtracker.R;
 import com.lucasteo.runningtracker.animation.ComponentAnimator;
@@ -29,7 +35,6 @@ import com.lucasteo.runningtracker.model.pojo.GroupByDateTrackPojo;
 import com.lucasteo.runningtracker.view_model.MainViewModel;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -43,18 +48,39 @@ public class HomeFragment extends Fragment {
 
     // shared preference
     SharedPreferences sharedPref;
+    SharedPreferences.Editor sharedPrefEditor;
+    SharedPreferences.OnSharedPreferenceChangeListener sharedPrefListener;
+    private final String SHARED_PREF_KEY_GOAL_VALUE = "goalValue";
+    private final int DEFAULT_GOAL_VALUE = 10000;
+    private final int DEFAULT_LOWEST_GOAL_VALUE = 5000;
 
     // UI components
     private Button serviceBtn;
+
     private TextView statusTextView;
     private TextView speedTextView;
     private ImageView statusImageView;
+
     private ProgressBar progressBar;
     private TextView progressTextView;
+    private TextView progressSlashTextView;
+
+    private TextView goalValueTextView;
+    private ImageView flagImageButton;
+    private Dialog goalDialog;
+    private EditText goalDialogEditText;
+    private Button cancelDialogBtn;
+    private Button saveDialogBtn;
 
     // animation
     private final ComponentAnimator animator = new ComponentAnimator();
     private final int animDuration = 250;
+
+    // animation phase delay
+    private final int phase0 = 0;
+    private final int phase1 = 200;
+    private final int phase2 = phase1 * 2;
+    private final int phase3 = phase1 * 3;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -79,6 +105,12 @@ public class HomeFragment extends Fragment {
 
         sharedPref = requireActivity().getSharedPreferences("runningTracker", Context.MODE_PRIVATE);
 
+        // shared pref editor
+        sharedPrefEditor = sharedPref.edit();
+        // TODO testing
+//        sharedPrefEditor.putInt(SHARED_PREF_KEY_GOAL_VALUE, 10000);
+//        sharedPrefEditor.apply();
+
     }
 
     @Override
@@ -92,18 +124,19 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // shared pref editor
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putInt("goalValue", 10000);
-        editor.apply();
-
         // look for UI components
         serviceBtn = requireView().findViewById(R.id.button);
         statusTextView = requireView().findViewById(R.id.statusTextView);
         speedTextView = requireView().findViewById(R.id.speedTextView);
         statusImageView = requireView().findViewById(R.id.statusImageView);
         progressBar = requireView().findViewById(R.id.progress_bar);
-        progressTextView = requireView().findViewById(R.id.progressTextView);
+        progressTextView = requireView().findViewById(R.id.progressTextView1);
+        goalValueTextView = requireView().findViewById(R.id.progressTextView2);
+        progressSlashTextView = requireView().findViewById(R.id.progressTextView3);
+        flagImageButton = requireView().findViewById(R.id.flagImageButton);
+
+        // animate progress dash text view
+        animator.textViewFadeSetText(progressSlashTextView, animDuration, phase0, R.string.slash);
 
         // button onClick
         serviceBtn.setOnClickListener(new View.OnClickListener() {
@@ -120,11 +153,73 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        // progress bar
-        SharedPreferences sp = requireActivity().getApplicationContext().getSharedPreferences("runningTracker", Context.MODE_PRIVATE);
-        int goalValue = sp.getInt("goalValue", 20000);
+        // create dialog view
+        goalDialog = new Dialog(requireActivity());
+        goalDialog.setContentView(R.layout.custom_alert);
+        goalDialog.getWindow().setBackgroundDrawable(AppCompatResources.getDrawable(requireContext(), R.drawable.rounded_background));
+        goalDialog.setCancelable(false);
+
+        cancelDialogBtn = goalDialog.findViewById(R.id.dialog_cancel_btn);
+        saveDialogBtn = goalDialog.findViewById(R.id.dialog_save_btn);
+        goalDialogEditText = goalDialog.findViewById(R.id.goalEditText);
+        goalDialogEditText.setInputType(InputType.TYPE_CLASS_NUMBER); // only allow number
+
+        flagImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goalDialog.show();
+            }
+        });
+
+        cancelDialogBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goalDialog.cancel();
+                goalDialogEditText.setText("");
+            }
+        });
+
+        saveDialogBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                String text = String.valueOf(goalDialogEditText.getText());
+
+                // if not empty string
+                if (text.length() > 0){
+
+                    int value = Integer.parseInt(text);
+
+                    // if value not too low
+                    if (value >= DEFAULT_LOWEST_GOAL_VALUE){
+
+                        sharedPrefEditor.putInt(SHARED_PREF_KEY_GOAL_VALUE, value);
+                        sharedPrefEditor.apply();
+                        goalDialog.dismiss();
+                        goalDialogEditText.setText("");
+
+                    } else {
+                        // if value too low
+                        Toast.makeText(requireActivity().getApplicationContext(),
+                                requireActivity().getString(R.string.dialog_goal_value_not_large_enough) +
+                                        " " + DEFAULT_LOWEST_GOAL_VALUE, Toast.LENGTH_SHORT).show();
+                    }
+
+                } else {
+                    // if empty string
+                    Toast.makeText(requireActivity().getApplicationContext(),
+                            R.string.invalid_value, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        // progress bar & progress text goal value
+        int goalValue = sharedPref.getInt(SHARED_PREF_KEY_GOAL_VALUE, DEFAULT_GOAL_VALUE);
+        updateGoalTextView(view, goalValue);
         progressBar.setMax(goalValue);
         progressBar.setMin(0);
+
+        // progress text
         viewModel.getAllGroupByDayTrack().observe(requireActivity(), new Observer<List<GroupByDateTrackPojo>>() {
             @Override
             public void onChanged(List<GroupByDateTrackPojo> groupByDateTrackPojos) {
@@ -133,12 +228,27 @@ public class HomeFragment extends Fragment {
 
                 int totalDistance = (int) Math.round(groupByDateTrack.getTotal_distance());
                 int progress = Math.min(totalDistance, goalValue);
-                progressBar.setProgress(progress);
+                progressBar.setProgress(progress, true);
 
-                String text = totalDistance + " m / " + goalValue + " m";
-                progressTextView.setText(text);
+                // goal progress
+                String progressText = totalDistance + " " + view.getResources().getString(R.string.meter);
+                animator.textViewFadeSetText(progressTextView, animDuration, phase0, progressText);
+
             }
         });
+
+        // goal text
+        sharedPrefListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+                if (s.equals(SHARED_PREF_KEY_GOAL_VALUE)){
+                    int goalValue = sharedPreferences.getInt(SHARED_PREF_KEY_GOAL_VALUE, DEFAULT_GOAL_VALUE);
+                    updateGoalTextView(view, goalValue);
+                    progressBar.setMax(goalValue);
+                }
+            }
+        };
+        sharedPref.registerOnSharedPreferenceChangeListener(sharedPrefListener);
 
         // observe service status to change UI
         viewModel.getServiceStatus().observe(requireActivity(), new Observer<Boolean>() {
@@ -188,8 +298,34 @@ public class HomeFragment extends Fragment {
 
     }
 
+    @Override
+    public void onPause() {
+        // clean up shared pref listener
+        sharedPref.unregisterOnSharedPreferenceChangeListener(sharedPrefListener);
+        super.onPause();
+    }
+
     // display helper functions
 
+    /**
+     * update goal text view
+     *
+     * @param view view
+     */
+    public void updateGoalTextView(View view, int goalValue){
+        String goalText = goalValue + " " + view.getResources().getString(R.string.meter);
+        animator.textViewFadeSetText(goalValueTextView, animDuration, phase0, goalText);
+    }
+
+    /**
+     * update speed status
+     * update speed icon status
+     * update speed text view
+     *
+     * @param view view
+     * @param status status
+     * @param speed speed
+     */
     public void updateGUI(View view , SpeedStatus status, double speed){
 
         int textResid = R.string.status_sleeping;
@@ -228,11 +364,11 @@ public class HomeFragment extends Fragment {
         }
 
         if (!statusTextView.getText().equals(view.getResources().getString(textResid))){
-            animator.textViewFadeSetText(statusTextView, animDuration, 0, textResid);
-            animator.imageViewFadeSetResource(statusImageView, animDuration, 200, imageResid);
+            animator.textViewFadeSetText(statusTextView, animDuration, phase1, textResid);
+            animator.imageViewFadeSetResource(statusImageView, animDuration, phase2, imageResid);
         }
         if (!speedTextView.getText().equals(speedText)){
-            animator.textViewFadeSetText(speedTextView, animDuration, 400, speedText);
+            animator.textViewFadeSetText(speedTextView, animDuration, phase3, speedText);
         }
 
     }
@@ -243,12 +379,12 @@ public class HomeFragment extends Fragment {
     }
 
     public String getEmptySpeedString(View view){
-        return view.getResources().getString(R.string.empty_speed) + " " +
+        return view.getResources().getString(R.string.dash) + " " +
                 view.getResources().getString(R.string.meter_per_second);
     }
 
     public String getZeroSpeedString(View view){
-        return view.getResources().getString(R.string.zero_speed) + " " +
+        return view.getResources().getString(R.string.zero) + " " +
                 view.getResources().getString(R.string.meter_per_second);
     }
 

@@ -8,6 +8,39 @@
     android:layout_height="match_parent"
     tools:context=".view.HomeFragment">
 
+    <ImageView
+        android:id="@+id/flagImageButton"
+        style="@style/imageViewButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/ic_baseline_flag_24"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/progressTextView3"
+        style="@style/Theme.Runningtracker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=" "
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progress_bar" />
+
+    <TextView
+        android:id="@+id/progressTextView2"
+        style="@style/Theme.Runningtracker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text=" "
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="@+id/progressTextView3"
+        app:layout_constraintStart_toEndOf="@+id/progressTextView3" />
+
     <ProgressBar
         android:id="@+id/progress_bar"
         style="@style/CircularDeterminateProgressBar"
@@ -72,16 +105,14 @@
         app:layout_constraintVertical_bias="0.413" />
 
     <TextView
-        android:id="@+id/progressTextView"
+        android:id="@+id/progressTextView1"
         style="@style/Theme.Runningtracker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginEnd="8dp"
         android:text=" "
         android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.501"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/progress_bar" />
+        app:layout_constraintBottom_toBottomOf="@+id/progressTextView3"
+        app:layout_constraintEnd_toStartOf="@+id/progressTextView3" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
