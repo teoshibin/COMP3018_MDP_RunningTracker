@@ -1,5 +1,7 @@
 package com.lucasteo.runningtracker.view;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -8,12 +10,14 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.lucasteo.runningtracker.R;
@@ -21,7 +25,11 @@ import com.lucasteo.runningtracker.animation.ComponentAnimator;
 import com.lucasteo.runningtracker.calculation.CustomMath;
 import com.lucasteo.runningtracker.calculation.SpeedStatus;
 import com.lucasteo.runningtracker.model.entity.Track;
+import com.lucasteo.runningtracker.model.pojo.GroupByDateTrackPojo;
 import com.lucasteo.runningtracker.view_model.MainViewModel;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -33,12 +41,16 @@ public class HomeFragment extends Fragment {
     // main
     private MainViewModel viewModel;
 
+    // shared preference
+    SharedPreferences sharedPref;
+
     // UI components
     private Button serviceBtn;
     private TextView statusTextView;
     private TextView speedTextView;
     private ImageView statusImageView;
-
+    private ProgressBar progressBar;
+    private TextView progressTextView;
 
     // animation
     private final ComponentAnimator animator = new ComponentAnimator();
@@ -65,6 +77,8 @@ public class HomeFragment extends Fragment {
         viewModel =
                 new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
+        sharedPref = requireActivity().getSharedPreferences("runningTracker", Context.MODE_PRIVATE);
+
     }
 
     @Override
@@ -78,11 +92,18 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // shared pref editor
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt("goalValue", 10000);
+        editor.apply();
+
         // look for UI components
         serviceBtn = requireView().findViewById(R.id.button);
         statusTextView = requireView().findViewById(R.id.statusTextView);
         speedTextView = requireView().findViewById(R.id.speedTextView);
         statusImageView = requireView().findViewById(R.id.statusImageView);
+        progressBar = requireView().findViewById(R.id.progress_bar);
+        progressTextView = requireView().findViewById(R.id.progressTextView);
 
         // button onClick
         serviceBtn.setOnClickListener(new View.OnClickListener() {
@@ -99,46 +120,25 @@ public class HomeFragment extends Fragment {
             }
         });
 
-//        viewModel.getSpeedStatus().observe(requireActivity(), new Observer<SpeedStatus>() {
-//            @Override
-//            public void onChanged(SpeedStatus status) {
-//                int textResid = R.string.status_sleeping;
-//                int imageResid = R.drawable.ic_baseline_hotel_24;
-//
-//                if (status != null) {
-//                    switch (status){
-//                        case STANDING:
-//                            textResid = R.string.status_standing;
-//                            imageResid = R.drawable.ic_baseline_nature_people_24;
-//                            break;
-//                        case WALKING:
-//                            textResid = R.string.status_walking;
-//                            imageResid = R.drawable.ic_baseline_elderly_24;
-//                            break;
-//                        case JOGGING:
-//                            textResid = R.string.status_jogging;
-//                            imageResid = R.drawable.ic_baseline_directions_walk_24;
-//                            break;
-//                        case RUNNING:
-//                            textResid = R.string.status_running;
-//                            imageResid = R.drawable.ic_baseline_directions_run_24;
-//                            break;
-//                        case CYCLING:
-//                            textResid = R.string.status_cycling;
-//                            imageResid = R.drawable.ic_baseline_directions_bike_24;
-//                            break;
-//                        case DRIVING:
-//                            textResid = R.string.status_too_fast;
-//                            imageResid = R.drawable.ic_baseline_directions_car_24;
-//                            break;
-//                    }
-//                }
-//
-//                animator.textViewFadeSetText(statusTextView, animDuration, 0, textResid);
-//                animator.imageViewFadeSetResource(statusImageView, animDuration, 200, imageResid);
-//
-//            }
-//        });
+        // progress bar
+        SharedPreferences sp = requireActivity().getApplicationContext().getSharedPreferences("runningTracker", Context.MODE_PRIVATE);
+        int goalValue = sp.getInt("goalValue", 20000);
+        progressBar.setMax(goalValue);
+        progressBar.setMin(0);
+        viewModel.getAllGroupByDayTrack().observe(requireActivity(), new Observer<List<GroupByDateTrackPojo>>() {
+            @Override
+            public void onChanged(List<GroupByDateTrackPojo> groupByDateTrackPojos) {
+
+                GroupByDateTrackPojo groupByDateTrack = groupByDateTrackPojos.get(0);
+
+                int totalDistance = (int) Math.round(groupByDateTrack.getTotal_distance());
+                int progress = Math.min(totalDistance, goalValue);
+                progressBar.setProgress(progress);
+
+                String text = totalDistance + " m / " + goalValue + " m";
+                progressTextView.setText(text);
+            }
+        });
 
         // observe service status to change UI
         viewModel.getServiceStatus().observe(requireActivity(), new Observer<Boolean>() {
@@ -151,7 +151,6 @@ public class HomeFragment extends Fragment {
 
                 } else {
                     serviceBtn.setText(R.string.btnStart);
-//                    viewModel.setValueSpeedStatus(null);
                     viewModel.setValueStopMoving(false);
 
                     updateGUI(view,null, 0);
@@ -178,13 +177,7 @@ public class HomeFragment extends Fragment {
 
                 // display speed
                 double speed = CustomMath.round(track.getSpeed(), 2);
-//                String text = getSpeedString(view, speed);
-//                animator.textViewFadeSetText(speedTextView, animDuration, 400, text);
 
-//                if (viewModel.getValueServiceStatus() && viewModel.isJustStarted()){
-//                    viewModel.setJustStarted(false);
-//                } else {
-//                }
                 if (viewModel.getValueServiceStatus() && !viewModel.getValueStopMoving()){
                     Log.d("runningTracker", "onChanged: " + viewModel.getValueServiceStatus() + viewModel.getValueStopMoving());
                     updateGUI(view, SpeedStatus.valueOf(track.getActivity()), speed);
