@@ -23,9 +23,10 @@
     <string name="group_by_date_track_item_max_speed">Max Speed</string>
     <string name="group_by_date_track_item_records">Records Count</string>
 
-    <!--  alert  -->
+    <!--  dialog  -->
     <string name="alert_dialog_text_view">Goal</string>
     <string name="save">SAVE</string>
+    <string name="delete">DELETE</string>
 
     <!--  unit  -->
     <string name="zero">0</string>
@@ -35,4 +36,6 @@
     <string name="meter">m</string>
     <string name="invalid_value">Invalid Value</string>
     <string name="dialog_goal_value_not_large_enough">Value Cannot be lower than </string>
+    <string name="are_you_sure_to_delete_all_data">Are you sure to delete all data?</string>
+    <string name="swipe_data">Swipe Data</string>
 </resources>

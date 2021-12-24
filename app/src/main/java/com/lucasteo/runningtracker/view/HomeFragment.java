@@ -17,8 +17,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -68,15 +66,20 @@ public class HomeFragment extends Fragment {
     private ImageView statusImageView;
 
     private ProgressBar progressBar;
-    private TextView progressTextView;
+    private TextView progressValueTextView;
     private TextView progressSlashTextView;
+    private TextView progressGoalValueTextView;
 
-    private TextView goalValueTextView;
     private ImageView flagImageButton;
     private Dialog goalDialog;
     private EditText goalDialogEditText;
-    private Button cancelDialogBtn;
-    private Button saveDialogBtn;
+    private Button goalDialogCancelButton;
+    private Button goalDialogSaveButton;
+
+    private ImageView deleteImageButton;
+    private Dialog deleteDialog;
+    private Button deleteDialogCancelButton;
+    private Button deteteDialogDeleteButton;
 
     // animation
     private final ComponentAnimator animator = new ComponentAnimator();
@@ -146,13 +149,16 @@ public class HomeFragment extends Fragment {
         speedTextView = requireView().findViewById(R.id.speedTextView);
         statusImageView = requireView().findViewById(R.id.statusImageView);
         progressBar = requireView().findViewById(R.id.progress_bar);
-        progressTextView = requireView().findViewById(R.id.progressTextView1);
-        goalValueTextView = requireView().findViewById(R.id.progressTextView2);
+        progressValueTextView = requireView().findViewById(R.id.progressTextView1);
+        progressGoalValueTextView = requireView().findViewById(R.id.progressTextView2);
         progressSlashTextView = requireView().findViewById(R.id.progressTextView3);
         flagImageButton = requireView().findViewById(R.id.flagImageButton);
+        deleteImageButton = requireView().findViewById(R.id.binImageButton);
 
         // animate progress slash text view
         animator.textViewFadeSetText(progressSlashTextView, animDuration, phase0, R.string.slash);
+
+        /// Buttons ///
 
         // start button listener
         serviceBtn.setOnClickListener(new View.OnClickListener() {
@@ -169,17 +175,6 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        // create dialog view
-        goalDialog = new Dialog(requireActivity());
-        goalDialog.setContentView(R.layout.custom_alert);
-        goalDialog.getWindow().setBackgroundDrawable(AppCompatResources.getDrawable(requireContext(), R.drawable.rounded_background));
-        goalDialog.setCancelable(false);
-
-        cancelDialogBtn = goalDialog.findViewById(R.id.dialog_cancel_btn);
-        saveDialogBtn = goalDialog.findViewById(R.id.dialog_save_btn);
-        goalDialogEditText = goalDialog.findViewById(R.id.goalEditText);
-        goalDialogEditText.setInputType(InputType.TYPE_CLASS_NUMBER); // only allow number
-
         // flag button listener
         flagImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -188,8 +183,29 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        // delete button listener
+        deleteImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deleteDialog.show();
+            }
+        });
+
+        /// Goal Distance Dialog ///
+
+        // create dialog view
+        goalDialog = new Dialog(requireActivity());
+        goalDialog.setContentView(R.layout.goal_dialog);
+        goalDialog.getWindow().setBackgroundDrawable(AppCompatResources.getDrawable(requireContext(), R.drawable.rounded_background));
+        goalDialog.setCancelable(false);
+
+        goalDialogCancelButton = goalDialog.findViewById(R.id.dialog_cancel_btn);
+        goalDialogSaveButton = goalDialog.findViewById(R.id.dialog_save_btn);
+        goalDialogEditText = goalDialog.findViewById(R.id.goalEditText);
+        goalDialogEditText.setInputType(InputType.TYPE_CLASS_NUMBER); // only allow number
+
         // goal dialog cancel button listener
-        cancelDialogBtn.setOnClickListener(new View.OnClickListener() {
+        goalDialogCancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 goalDialog.cancel();
@@ -198,7 +214,7 @@ public class HomeFragment extends Fragment {
         });
 
         // goal dialog save button listener
-        saveDialogBtn.setOnClickListener(new View.OnClickListener() {
+        goalDialogSaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -232,6 +248,35 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        /// delete dialog ///
+
+        deleteDialog = new Dialog(requireActivity());
+        deleteDialog.setContentView(R.layout.delete_dialog);
+        deleteDialog.getWindow().setBackgroundDrawable(AppCompatResources.getDrawable(requireContext(), R.drawable.rounded_background));
+        deleteDialog.setCancelable(false);
+
+        deleteDialogCancelButton = deleteDialog.findViewById(R.id.delete_dialog_cancel_btn);
+        deteteDialogDeleteButton = deleteDialog.findViewById(R.id.delete_dialog_delete_button);
+
+        // delete dialog cancel button listener
+        deleteDialogCancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deleteDialog.cancel();
+            }
+        });
+
+        // delete dialog delete button listener
+        deteteDialogDeleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                viewModel.deleteAll();
+                deleteDialog.dismiss();
+            }
+        });
+
+        /// progress bar and text view below it ///
+
         // progress bar & progress text goal value
         int goalValue = sharedPref.getInt(SHARED_PREF_KEY_GOAL_VALUE, DEFAULT_GOAL_VALUE);
         updateGoalTextView(view, goalValue);
@@ -243,15 +288,22 @@ public class HomeFragment extends Fragment {
             @Override
             public void onChanged(List<GroupByDateTrackPojo> groupByDateTrackPojos) {
 
-                GroupByDateTrackPojo groupByDateTrack = groupByDateTrackPojos.get(0);
+                int totalDistance = 0;
+                int progress = totalDistance;
 
-                int totalDistance = (int) Math.round(groupByDateTrack.getTotal_distance());
-                int progress = Math.min(totalDistance, goalValue);
-                progressBar.setProgress(progress, true);
+                if (!groupByDateTrackPojos.isEmpty()) {
+
+                    GroupByDateTrackPojo groupByDateTrack = groupByDateTrackPojos.get(0);
+
+                    totalDistance = (int) Math.round(groupByDateTrack.getTotal_distance());
+                    progress = Math.min(totalDistance, goalValue);
+                    progressBar.setProgress(progress, true);
+
+                }
 
                 // goal progress
                 String progressText = totalDistance + " " + view.getResources().getString(R.string.meter);
-                animator.textViewFadeSetText(progressTextView, animDuration, phase0, progressText);
+                animator.textViewFadeSetText(progressValueTextView, animDuration, phase0, progressText);
 
             }
         });
@@ -304,14 +356,18 @@ public class HomeFragment extends Fragment {
             @Override
             public void onChanged(Track track) {
 
-                // display speed
-                double speed = CustomMath.round(track.getSpeed(), 2);
+                double speed = 0;
+                SpeedStatus status = null;
+
+                if (track != null){
+                    speed = CustomMath.round(track.getSpeed(), 2);
+                    status = SpeedStatus.valueOf(track.getActivity());
+                }
 
                 if (viewModel.getValueServiceStatus() && !viewModel.getValueStopMoving()){
                     Log.d("runningTracker", "onChanged: " + viewModel.getValueServiceStatus() + viewModel.getValueStopMoving());
-                    updateGUI(view, SpeedStatus.valueOf(track.getActivity()), speed);
+                    updateGUI(view, status, speed);
                 }
-
             }
         });
 
@@ -339,7 +395,7 @@ public class HomeFragment extends Fragment {
      */
     public void updateGoalTextView(View view, int goalValue){
         String goalText = goalValue + " " + view.getResources().getString(R.string.meter);
-        animator.textViewFadeSetText(goalValueTextView, animDuration, phase0, goalText);
+        animator.textViewFadeSetText(progressGoalValueTextView, animDuration, phase0, goalText);
     }
 
     /**

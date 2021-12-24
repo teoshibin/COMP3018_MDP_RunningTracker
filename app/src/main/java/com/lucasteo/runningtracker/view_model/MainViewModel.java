@@ -86,7 +86,7 @@ public class MainViewModel extends AndroidViewModel {
     //--------------------------------------------------------------------------------------------//
     //endregion
 
-    //region GETTER FOR DATA FROM REPOSITORY
+    //region interaction between vm and repo
     //--------------------------------------------------------------------------------------------//
 
     public LiveData<List<Track>> getAllTracks() {
@@ -99,6 +99,10 @@ public class MainViewModel extends AndroidViewModel {
 
     public LiveData<Track> getLastTrack(){
         return lastTrack;
+    }
+
+    public void deleteAll(){
+        repository.deleteAll();
     }
 
     //--------------------------------------------------------------------------------------------//
