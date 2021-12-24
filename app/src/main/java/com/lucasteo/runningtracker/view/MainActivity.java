@@ -33,8 +33,11 @@ import java.util.Objects;
  */
 public class MainActivity extends AppCompatActivity {
 
-    //region VARIABLES
-    //--------------------------------------------------------------------------------------------//
+    //==============================================================================================
+    // variables
+    //==============================================================================================
+
+    //region
 
     // log
     private static final String TAG = "runningTracker";
@@ -57,11 +60,14 @@ public class MainActivity extends AppCompatActivity {
     // service
     private TrackerService.TrackerServiceBinder trackerServiceBinder;
 
-    //--------------------------------------------------------------------------------------------//
     //endregion
 
-    //region LIFE CYCLE & EVENT
-    //--------------------------------------------------------------------------------------------//
+    //==============================================================================================
+    // life cycle
+    //==============================================================================================
+
+    //region
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,11 +95,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    //--------------------------------------------------------------------------------------------//
     //endregion
 
-    //region PERMISSIONS
-    //--------------------------------------------------------------------------------------------//
+    //==============================================================================================
+    // permissions
+    //==============================================================================================
+
+    //region
 
     /**
      * request all listed permissions
@@ -145,11 +153,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //--------------------------------------------------------------------------------------------//
     //endregion
 
-    //region SERVICE
-    //--------------------------------------------------------------------------------------------//
+    //==============================================================================================
+    // service
+    //==============================================================================================
+
+    //region
 
     /**
      * start service
@@ -204,7 +214,9 @@ public class MainActivity extends AppCompatActivity {
             trackerServiceBinder = (TrackerService.TrackerServiceBinder) binder;
             trackerServiceBinder.registerCallback(callback);
 
-            viewModel.setValueServiceStatus(trackerServiceBinder.getTrackerServiceIsRunning()); // as service existed change status to started
+            // service started change UI service status to current service status
+            viewModel.setValueServiceStatus(trackerServiceBinder.getTrackerServiceIsRunning());
+            // service started change UI stop moving status to current service stop moving status
             viewModel.setValueStopMoving(trackerServiceBinder.getTrackerServiceStopMoving());
         }
 
@@ -216,6 +228,5 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    //--------------------------------------------------------------------------------------------//
     //endregion
 }

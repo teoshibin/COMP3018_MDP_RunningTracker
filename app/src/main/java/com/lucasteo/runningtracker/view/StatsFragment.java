@@ -26,7 +26,25 @@ import com.lucasteo.runningtracker.view_model.MainViewModel;
  */
 public class StatsFragment extends Fragment {
 
+    //==============================================================================================
+    // variables
+    //==============================================================================================
+
+    //region
+
+    // main
     private MainViewModel viewModel;
+
+    // UI components
+    RecyclerView recyclerView;
+
+    //endregion
+
+    //==============================================================================================
+    // constructors
+    //==============================================================================================
+
+    //region
 
     public StatsFragment() {
         // Required empty public constructor
@@ -41,6 +59,13 @@ public class StatsFragment extends Fragment {
     public static StatsFragment newInstance() {
         return new StatsFragment();
     }
+    //endregion
+
+    //==============================================================================================
+    // life cycle
+    //==============================================================================================
+
+    //region
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -62,20 +87,25 @@ public class StatsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Load UI
-        RecyclerView recyclerView = requireView().findViewById(R.id.itemList);
+        recyclerView = requireView().findViewById(R.id.itemList);
 
+        // create recycler view adapter
         GroupByDateTrackAdapter adapter = new GroupByDateTrackAdapter(requireActivity());
         recyclerView.setAdapter(adapter);
 
+        // set scrolling layout manager
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
+        // add additional decoration spacing for recycler view
         SpacingItemDecorator spacingItemDecorator =
                 new SpacingItemDecorator(
                         getResources().getDimensionPixelSize(R.dimen.recycler_view_item_spacing)
                 );
         recyclerView.addItemDecoration(spacingItemDecorator);
 
+        // observe data
         viewModel.getAllGroupByDayTrack().observe(requireActivity(), items -> adapter.setData(items));
 
     }
+    //endregion
 }

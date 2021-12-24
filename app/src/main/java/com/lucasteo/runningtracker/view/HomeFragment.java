@@ -43,6 +43,12 @@ import java.util.List;
  */
 public class HomeFragment extends Fragment {
 
+    //==============================================================================================
+    // variables
+    //==============================================================================================
+
+    //region
+
     // main
     private MainViewModel viewModel;
 
@@ -82,6 +88,13 @@ public class HomeFragment extends Fragment {
     private final int phase2 = phase1 * 2;
     private final int phase3 = phase1 * 3;
 
+    //endregion
+
+    //==============================================================================================
+    // constructors
+    //==============================================================================================
+
+    //region
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -95,6 +108,13 @@ public class HomeFragment extends Fragment {
     public static HomeFragment newInstance() {
         return new HomeFragment();
     }
+    //endregion
+
+    //==============================================================================================
+    // life cycle
+    //==============================================================================================
+
+    //region
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -103,13 +123,9 @@ public class HomeFragment extends Fragment {
         viewModel =
                 new ViewModelProvider(requireActivity()).get(MainViewModel.class);
 
+        // shared preference
         sharedPref = requireActivity().getSharedPreferences("runningTracker", Context.MODE_PRIVATE);
-
-        // shared pref editor
         sharedPrefEditor = sharedPref.edit();
-        // TODO testing
-//        sharedPrefEditor.putInt(SHARED_PREF_KEY_GOAL_VALUE, 10000);
-//        sharedPrefEditor.apply();
 
     }
 
@@ -135,10 +151,10 @@ public class HomeFragment extends Fragment {
         progressSlashTextView = requireView().findViewById(R.id.progressTextView3);
         flagImageButton = requireView().findViewById(R.id.flagImageButton);
 
-        // animate progress dash text view
+        // animate progress slash text view
         animator.textViewFadeSetText(progressSlashTextView, animDuration, phase0, R.string.slash);
 
-        // button onClick
+        // start button listener
         serviceBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -164,6 +180,7 @@ public class HomeFragment extends Fragment {
         goalDialogEditText = goalDialog.findViewById(R.id.goalEditText);
         goalDialogEditText.setInputType(InputType.TYPE_CLASS_NUMBER); // only allow number
 
+        // flag button listener
         flagImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -171,6 +188,7 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        // goal dialog cancel button listener
         cancelDialogBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -179,6 +197,7 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        // goal dialog save button listener
         saveDialogBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -305,7 +324,13 @@ public class HomeFragment extends Fragment {
         super.onPause();
     }
 
-    // display helper functions
+    //endregion
+
+    //==============================================================================================
+    // GUI helper methods
+    //==============================================================================================
+
+    //region
 
     /**
      * update goal text view
@@ -387,5 +412,7 @@ public class HomeFragment extends Fragment {
         return view.getResources().getString(R.string.zero) + " " +
                 view.getResources().getString(R.string.meter_per_second);
     }
+
+    //endregion
 
 }
