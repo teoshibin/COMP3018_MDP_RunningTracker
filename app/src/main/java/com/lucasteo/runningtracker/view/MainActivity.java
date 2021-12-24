@@ -28,6 +28,9 @@ import com.lucasteo.runningtracker.view_model.MainViewModel;
 
 import java.util.Objects;
 
+/**
+ * main activity
+ */
 public class MainActivity extends AppCompatActivity {
 
     //region VARIABLES
@@ -43,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_BACKGROUND_LOCATION
-    };
+    }; // permissions to be requested
 
     // UI Components
     BottomNavigationView bottomNavigationView;
@@ -92,18 +95,30 @@ public class MainActivity extends AppCompatActivity {
     //region PERMISSIONS
     //--------------------------------------------------------------------------------------------//
 
+    /**
+     * request all listed permissions
+     *
+     * @return true when all permission is granted
+     */
     private boolean requestPermission(){
 
         boolean allGranted = true;
 
-        if (noPermissions(this, PERMISSIONS)) {
+        if (notGrantedPermissions(this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
             allGranted = false;
         }
         return allGranted;
     }
 
-    public static boolean noPermissions(Context context, String... permissions) {
+    /**
+     * check if any of the permission is not given
+     *
+     * @param context context
+     * @param permissions list of permissions
+     * @return false when all permissions are given
+     */
+    public static boolean notGrantedPermissions(Context context, String... permissions) {
         if (context != null && permissions != null) {
             for (String permission : permissions) {
                 if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
@@ -120,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
 
         // making sure every permission is granted
         boolean allGranted = true;
-        if(noPermissions(this, PERMISSIONS)){
+        if(notGrantedPermissions(this, PERMISSIONS)){
             allGranted = false;
         }
 
@@ -136,6 +151,9 @@ public class MainActivity extends AppCompatActivity {
     //region SERVICE
     //--------------------------------------------------------------------------------------------//
 
+    /**
+     * start service
+     */
     public void startTrackerService(){
         this.startForegroundService(
                 new Intent(this, TrackerService.class));
@@ -144,30 +162,24 @@ public class MainActivity extends AppCompatActivity {
                 serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
+    /**
+     * run service task
+     */
     public void runTrackerService(){
         trackerServiceBinder.runTrackerService();
     }
 
+    /**
+     * stop running service task
+     */
     public void stopTrackerService(){
         trackerServiceBinder.pauseTrackerService();
     }
 
-    public boolean getTrackerServiceUserStopMoving(){
-        return trackerServiceBinder.getTrackerServiceStopMoving();
-    }
-
+    /**
+     * define concrete call back
+     */
     private final ICallback callback = new ICallback() {
-        // to use this remember to use runOnUiThread new Runnable()
-
-//        @Override
-//        public void speedStatusUpdate(SpeedStatus status) {
-//            runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    viewModel.setValueSpeedStatus(status);
-//                }
-//            });
-//        }
 
         @Override
         public void onStopMovingUpdateEvent(boolean value) {
@@ -181,6 +193,9 @@ public class MainActivity extends AppCompatActivity {
 
     };
 
+    /**
+     * define service connection behaviour
+     */
     private final ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override

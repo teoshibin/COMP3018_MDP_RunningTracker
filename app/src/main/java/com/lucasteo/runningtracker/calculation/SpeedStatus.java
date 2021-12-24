@@ -1,5 +1,9 @@
 package com.lucasteo.runningtracker.calculation;
 
+/**
+ * speed status class for classifying different speed into different categories of activities that
+ * the user might be doing
+ */
 public enum SpeedStatus {
 
     // derived from multiple statistics of speed across genders age etc.
@@ -21,12 +25,18 @@ public enum SpeedStatus {
     CYCLING(4.95),
     DRIVING(9.85);
 
-    // this is used as a modifier for threshold due to inaccurate speed from GPS or emulator
+    // this is used as a modifier for scaling the threshold
+    // due to inaccurate speed from GPS or emulator
     private double scale = 1.0;
 
     private double rawThreshold;
     private double scaledThreshold;
 
+    /**
+     * enum constructor to assign each activities' threshold values
+     *
+     * @param rawThreshold threshold
+     */
     SpeedStatus(double rawThreshold){
         this.rawThreshold = rawThreshold;
         this.scaledThreshold = scale * rawThreshold;
@@ -56,6 +66,12 @@ public enum SpeedStatus {
         this.scaledThreshold = scaledThreshold;
     }
 
+    /**
+     * classify input speed into one of the speedStatus enum
+     *
+     * @param speed speed of type double
+     * @return SpeedStatus
+     */
     public static SpeedStatus classifyWithScaledThreshold(double speed){
         double absSpeed = Math.abs(speed);
         if (absSpeed >= DRIVING.getScaledThreshold()){

@@ -29,6 +29,10 @@ import com.lucasteo.runningtracker.model.entity.Track;
 
 import java.util.Date;
 
+/**
+ * gps tracker service
+ * tracks location, speed, etc. and store these information into database
+ */
 public class TrackerService extends Service {
 
     //region VARIABLES
@@ -132,30 +136,27 @@ public class TrackerService extends Service {
     //region CALLBACKS & MAIN SERVICE
     //--------------------------------------------------------------------------------------------//
 
+    /**
+     * define this service status
+     */
     public enum ServiceStatus {
-        STARTED(1),
-        JUST_STARTED(2),
-        RUNNING(3),
-        PAUSED(4),
-        STOPPED(5);
-
-        private final int value;
-
-        ServiceStatus(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
+        STARTED,
+        JUST_STARTED,
+        RUNNING,
+        PAUSED,
+        STOPPED
     }
 
+    /**
+     * define gps location listener
+     * main service logic
+     */
     public class TrackerLocationListener implements LocationListener {
 
         @Override
         public void onLocationChanged(Location location) {
 
-            // ignore calculation and data storing for the first location
+            // service is fully running then start storing data
             if(serviceStatus == ServiceStatus.RUNNING){
 
                 if (prevLocation != null){
@@ -166,22 +167,8 @@ public class TrackerService extends Service {
                 resetStopMovingDetection();
 
                 Log.d(TAG, "onLocationChanged: Moving");
-//                Log.d(TAG, "onLocationChanged: \n" +
-//                        "\tLatitude: " + location.getLatitude() + "\n" +
-//                        "\tLongitude: " + location.getLongitude() + "\n" +
-//                        "\tDistance: " + distance + "\n" +
-//                        "\tAltitude: " + location.getAltitude() + "\n" +
-//                        "\tSpeed (m/s): " + location.getSpeed() + "\n"
-//                );
 
-//                SpeedStatus newSpeedStatus = SpeedStatus.classifyWithScaledThreshold(location.getSpeed());
                 speedStatus = SpeedStatus.classifyWithScaledThreshold(location.getSpeed());
-
-//                if (newSpeedStatus != speedStatus){
-//                    speedStatus = newSpeedStatus;
-//                    doSpeedStatusUpdateCallback(speedStatus);
-//                }
-
                 repository.insert(
                         new Track(
                                 0,
@@ -195,12 +182,12 @@ public class TrackerService extends Service {
                         )
                 );
 
-
-
+            // ignore calculation and data storing for the first location
+            // as distance require 2 locations to be calculated at the beginning
             } else if (serviceStatus == ServiceStatus.JUST_STARTED){
                 serviceStatus = ServiceStatus.RUNNING;
             }
-            prevLocation = location; // init or continue storing previous location
+            prevLocation = location; // store current location as previous location
 
         }
 
@@ -209,19 +196,26 @@ public class TrackerService extends Service {
             // information about the signal, i.e. number of satellites
             Log.d(TAG, "onStatusChanged: ( Provider: " + provider + " Status: " + status + " )");
         }
+
         @Override
         public void onProviderEnabled(String provider) {
             // the user enabled (for example) the GPS
             Log.d(TAG, "onProviderEnabled: ( Provider: " + provider + " )");
         }
+
         @Override
         public void onProviderDisabled(String provider) {
             // the user disabled (for example) the GPS
             Log.d(TAG, "onProviderDisabled: ( Provider: " + provider + " )");
         }
+
     }
 
+    /**
+     * define binder for other component to interact with this service
+     */
     public class TrackerServiceBinder extends Binder implements IInterface {
+
         @Override
         public IBinder asBinder() {
             return this;
@@ -246,7 +240,6 @@ public class TrackerService extends Service {
             this.callback = callback;
             remoteCallbackList.register(TrackerServiceBinder.this);
         }
-
         public void unregisterCallback(ICallback callback) {
             remoteCallbackList.unregister(TrackerServiceBinder.this);
         }
@@ -254,15 +247,11 @@ public class TrackerService extends Service {
         ICallback callback;
     }
 
-    // callback loops
-//    public void doSpeedStatusUpdateCallback(SpeedStatus status) {
-//        final int n = remoteCallbackList.beginBroadcast();
-//        for (int i=0; i<n; i++) {
-//            remoteCallbackList.getBroadcastItem(i).callback.speedStatusUpdate(status);
-//        }
-//        remoteCallbackList.finishBroadcast();
-//    }
+    // CALLBACKS
 
+    /**
+     * do call backs
+     */
     public void doStopMovingEventCallback() {
         final int n = remoteCallbackList.beginBroadcast();
         for (int i=0; i<n; i++) {
@@ -271,12 +260,39 @@ public class TrackerService extends Service {
         remoteCallbackList.finishBroadcast();
     }
 
+    // STOP MOVING DETECTION METHODS
+
+    /**
+     * location listener uses this to reset the standing detection
+     * and allow it to continue detecting if user stops moving
+     */
+    private void resetStopMovingDetection(){
+        count = defaultCount;
+        flipFlop = false;
+        if (stopMoving){
+            stopMoving = false;
+            doStopMovingEventCallback();
+        }
+    }
+
+    /**
+     * halt stop moving detection thread
+     */
+    private void stopStopMovingDetection(){
+        detecting = false;
+    }
+
+    // SERVICE MAIN METHODS
+
+    /**
+     * start running this service
+     */
     @SuppressLint("MissingPermission")
     private void startListening(){
 
+        // start the main part of this service
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationListener = new TrackerLocationListener();
-
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                 1, // minimum time interval between updates
                 1, // minimum distance between updates, in metres
@@ -306,28 +322,17 @@ public class TrackerService extends Service {
                             Log.d(TAG, "run: " + count);
                         }
 
-                        // if stop moving is not set to false by location listener then
-                        // the user must have stop moving over 250 ms * 40 count = 10 seconds
+                        // if flip flop is not set to false by location listener then
+                        // the user must have stop moving for over 250 ms * 40 count = 10 seconds
                         //     EXTRA NOTE:
-                        //         only update when the status is different
+                        //         do callback even when the stopMoving status is the same
                         //         if this part of the code is reached bcs of detecting = false then
-                        //         abort checking as the detection is closed
-//                        if (flipFlop && speedStatus != SpeedStatus.STANDING && detecting){
-//                            speedStatus = SpeedStatus.STANDING;
-//                            doSpeedStatusUpdateCallback(speedStatus);
-//
-//                        }
-
-                        // if stop moving is not set to false by location listener then
-                        // the user must have stop moving over 250 ms * 40 count = 10 seconds
-                        //     EXTRA NOTE:
-                        //         only update when the status is different
-                        //         if this part of the code is reached bcs of detecting = false then
-                        //         abort checking as the detection is closed
+                        //             abort call back as the detection thread is closed
                         if (detecting && flipFlop){
                             stopMoving = true;
                             doStopMovingEventCallback();
                         }
+
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -335,28 +340,13 @@ public class TrackerService extends Service {
             }
         }).start();
 
+        // update service status
         serviceStatus = ServiceStatus.JUST_STARTED;
     }
 
     /**
-     * location listener uses this to reset the standing detection and allow it to continue detecting
+     * stop listening to location
      */
-    private void resetStopMovingDetection(){
-        count = defaultCount;
-        flipFlop = false;
-        if (stopMoving){
-            stopMoving = false;
-            doStopMovingEventCallback();
-        }
-    }
-
-    /**
-     * halt stop moving detection thread
-     */
-    private void stopStopMovingDetection(){
-        detecting = false;
-    }
-
     private void stopListening(){
         if(locationManager != null){
             locationManager.removeUpdates(locationListener);
@@ -371,6 +361,9 @@ public class TrackerService extends Service {
         stopStopMovingDetection();
     }
 
+    /**
+     * stop entire service
+     */
     private void stopService(){
         serviceStatus = ServiceStatus.STOPPED;
         stopListening();
@@ -378,10 +371,22 @@ public class TrackerService extends Service {
         stopSelf();
     }
 
+    /**
+     *  check if service is running
+     *  this is required to allow GUI to show current service status
+     *
+     * @return returns true if service is just started running or fully running
+     */
     private boolean isRunning(){
         return ((serviceStatus == ServiceStatus.RUNNING) || (serviceStatus == ServiceStatus.JUST_STARTED));
     }
 
+    /**
+     * getter for stop moving status
+     * this is required to allow GUI to show current motion status
+     *
+     * @return true if user stop moving
+     */
     private boolean getStopMoving(){
         return stopMoving;
     }
@@ -392,6 +397,9 @@ public class TrackerService extends Service {
     //region NOTIFICATIONS
     //--------------------------------------------------------------------------------------------//
 
+    /**
+     * create foreground notification
+     */
     @SuppressLint("ObsoleteSdkInt")
     public void createNotification(){
 
@@ -424,6 +432,9 @@ public class TrackerService extends Service {
         startForeground(NOTIFICATION_ID, notification);
     }
 
+    /**
+     * remove foreground notification
+     */
     public void removeNotification(){
         stopForeground(true);
     }

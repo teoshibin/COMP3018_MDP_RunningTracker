@@ -10,6 +10,9 @@ import com.lucasteo.runningtracker.model.pojo.GroupByDateTrackPojo;
 
 import java.util.List;
 
+/**
+ * repository
+ */
 public class RTRepository {
 
     // DAO

@@ -16,12 +16,17 @@ import com.lucasteo.runningtracker.model.pojo.GroupByDateTrackPojo;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * track adapter for recycler view
+ */
 public class GroupByDateTrackAdapter extends RecyclerView.Adapter<GroupByDateTrackAdapter.GroupByDateTrackViewHolder> {
 
+    // variables
     private List<GroupByDateTrackPojo> data;
     private final Context context;
     private final LayoutInflater layoutInflater;
 
+    // constructor
     public GroupByDateTrackAdapter(Context context){
         this.data = new ArrayList<>();
         this.context = context;

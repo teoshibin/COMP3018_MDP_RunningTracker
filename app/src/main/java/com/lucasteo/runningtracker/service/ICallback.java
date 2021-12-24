@@ -1,8 +1,14 @@
 package com.lucasteo.runningtracker.service;
 
-import com.lucasteo.runningtracker.calculation.SpeedStatus;
-
+/**
+ * service callback
+ */
 public interface ICallback {
-//    void speedStatusUpdate(SpeedStatus status);
+
+    /**
+     * directly pass user stop moving status update to user interface
+     *
+     * @param value stop moving boolean
+     */
     void onStopMovingUpdateEvent(boolean value);
 }

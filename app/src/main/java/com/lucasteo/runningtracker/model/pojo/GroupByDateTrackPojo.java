@@ -1,5 +1,9 @@
 package com.lucasteo.runningtracker.model.pojo;
 
+/**
+ * plain old java object
+ * storing queried data into this object
+ */
 public class GroupByDateTrackPojo {
     private int number_of_records;
     private double total_distance;

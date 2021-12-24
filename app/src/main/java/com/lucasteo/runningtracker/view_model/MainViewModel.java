@@ -32,7 +32,6 @@ public class MainViewModel extends AndroidViewModel {
 
     // save instance state value keys
     private static final String SAVED_KEY_SERVICE_STARTED = "serviceStarted";
-    private static final String SAVED_KEY_SPEED_STATUS = "speedStatus";
     private static final String SAVED_KEY_STOP_MOVING = "stopMoving";
 
     // repo
@@ -43,9 +42,7 @@ public class MainViewModel extends AndroidViewModel {
 
     // UI states
     private MutableLiveData<Boolean> serviceStatus;
-//    private MutableLiveData<SpeedStatus> speedStatus;
     private MutableLiveData<Boolean> stopMoving;
-    private boolean justStarted = true;
 
     //--------------------------------------------------------------------------------------------//
     //endregion
@@ -53,6 +50,12 @@ public class MainViewModel extends AndroidViewModel {
     //region MAIN CONSTRUCTOR AND METHODS
     //--------------------------------------------------------------------------------------------//
 
+    /**
+     * main view model constructor
+     *
+     * @param application
+     * @param savedStateHandle
+     */
     public MainViewModel(@NonNull Application application, SavedStateHandle savedStateHandle) {
         super(application);
         Log.d(TAG, "MainViewModel: Instantiated");
@@ -63,20 +66,16 @@ public class MainViewModel extends AndroidViewModel {
         // init variables default
         serviceStatus = new MutableLiveData<>(Boolean.FALSE);
         stopMoving = new MutableLiveData<>(Boolean.TRUE);
-//        speedStatus = new MutableLiveData<>(null);
 
         // retrieve saved instance state
         if (savedStateHandle.contains(SAVED_KEY_SERVICE_STARTED)){
             serviceStatus.setValue(savedStateHandle.get(SAVED_KEY_SERVICE_STARTED));
         }
-//        if (savedStateHandle.contains(SAVED_KEY_SPEED_STATUS)){
-//            speedStatus.setValue(savedStateHandle.get(SAVED_KEY_SPEED_STATUS));
-//        }
         if (savedStateHandle.contains(SAVED_KEY_STOP_MOVING)){
             stopMoving.setValue(savedStateHandle.get(SAVED_KEY_STOP_MOVING));
         }
 
-        // repo stuff
+        // retrieve data from repository
         repository = new RTRepository(application);
         allTracks = repository.getAllTracks();
         lastTrack = repository.getLastTrack();
@@ -84,15 +83,10 @@ public class MainViewModel extends AndroidViewModel {
 
     }
 
-    public void toggleServiceStatus(){
-        boolean value = serviceStatus.getValue() != null ? serviceStatus.getValue() : false;
-        setValueServiceStatus(!value);
-    }
-
     //--------------------------------------------------------------------------------------------//
     //endregion
 
-    //region VM and Repo Interaction
+    //region GETTER FOR DATA FROM REPOSITORY
     //--------------------------------------------------------------------------------------------//
 
     public LiveData<List<Track>> getAllTracks() {
@@ -113,6 +107,8 @@ public class MainViewModel extends AndroidViewModel {
     //region VARIABLES STATES GETTER SETTER
     //--------------------------------------------------------------------------------------------//
 
+    // service status getter setter
+
     public MutableLiveData<Boolean> getServiceStatus() {
         return serviceStatus;
     }
@@ -126,16 +122,19 @@ public class MainViewModel extends AndroidViewModel {
         return serviceStatus.getValue() != null ? serviceStatus.getValue() : false;
     }
 
-    //--
+    /**
+     * flip service status
+     * this is part of the UI state
+     */
+    public void toggleServiceStatus(){
+        boolean value = serviceStatus.getValue() != null ? serviceStatus.getValue() : false;
+        setValueServiceStatus(!value);
+    }
+
+    // stop moving getter setter
 
     public MutableLiveData<Boolean> getStopMoving(){
         return stopMoving;
-    }
-
-    public void toggleStopMoving(){
-        boolean value = !stopMoving.getValue();
-        stopMoving.setValue(value);
-        savedState.set(SAVED_KEY_STOP_MOVING, value);
     }
 
     public void setValueStopMoving(boolean value){
@@ -146,25 +145,6 @@ public class MainViewModel extends AndroidViewModel {
     public boolean getValueStopMoving(){
         return stopMoving.getValue();
     }
-
-    public boolean isJustStarted() {
-        return justStarted;
-    }
-
-    public void setJustStarted(boolean justStarted) {
-        this.justStarted = justStarted;
-    }
-
-    //--
-
-//    public MutableLiveData<SpeedStatus> getSpeedStatus() {
-//        return speedStatus;
-//    }
-
-//    public void setValueSpeedStatus(SpeedStatus value) {
-//        speedStatus.setValue(value);
-//        savedState.set(SAVED_KEY_SPEED_STATUS, value);
-//    }
 
     //--------------------------------------------------------------------------------------------//
     //endregion
