@@ -1,4 +1,4 @@
-package com.lucasteo.runningtracker.animation;
+package com.lucasteo.runningtracker.view_helper;
 
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;

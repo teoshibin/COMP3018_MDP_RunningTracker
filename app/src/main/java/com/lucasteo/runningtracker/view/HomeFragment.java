@@ -25,7 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lucasteo.runningtracker.R;
-import com.lucasteo.runningtracker.animation.ComponentAnimator;
+import com.lucasteo.runningtracker.view_helper.ComponentAnimator;
 import com.lucasteo.runningtracker.calculation.CustomMath;
 import com.lucasteo.runningtracker.calculation.SpeedStatus;
 import com.lucasteo.runningtracker.model.entity.Track;
