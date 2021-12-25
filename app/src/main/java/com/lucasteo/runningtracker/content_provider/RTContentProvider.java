@@ -16,7 +16,6 @@ import com.lucasteo.runningtracker.model.dao.TrackDao;
 import com.lucasteo.runningtracker.model.entity.Track;
 
 public class RTContentProvider extends ContentProvider {
-    // TODO declare provider in manifest
 
     private static final UriMatcher MATCHER;
 

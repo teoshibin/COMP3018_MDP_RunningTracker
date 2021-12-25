@@ -63,6 +63,8 @@ public class GroupByDateTrackAdapter extends RecyclerView.Adapter<GroupByDateTra
 
     static class GroupByDateTrackViewHolder extends RecyclerView.ViewHolder{
 
+        View itemView;
+
         TextView dateView;
         TextView distanceView;
         TextView recordView;
@@ -71,6 +73,8 @@ public class GroupByDateTrackAdapter extends RecyclerView.Adapter<GroupByDateTra
 
         public GroupByDateTrackViewHolder(@NonNull View itemView) {
             super(itemView);
+
+            this.itemView = itemView;
 
             dateView = itemView.findViewById(R.id.dateTextVIew);
             distanceView = itemView.findViewById(R.id.distanceTextView);
@@ -82,12 +86,15 @@ public class GroupByDateTrackAdapter extends RecyclerView.Adapter<GroupByDateTra
 
         void bind(final GroupByDateTrackPojo groupByDateTrackPojo){
             if (groupByDateTrackPojo != null){
-                // TODO remove hardcoded measures
+
+                String meter = itemView.getResources().getString(R.string.meter);
+                String meterPerSec = itemView.getResources().getString(R.string.meter_per_second);
+
                 dateView.setText(groupByDateTrackPojo.getRecord_date());
-                distanceView.setText(String.format("%s m", groupByDateTrackPojo.getTotal_distance()));
+                distanceView.setText(String.format("%s " + meter, groupByDateTrackPojo.getTotal_distance()));
                 recordView.setText(String.valueOf(groupByDateTrackPojo.getNumber_of_records()));
-                avgSpeedView.setText(String.format("%s m/s", groupByDateTrackPojo.getAverage_speed()));
-                maxSpeedView.setText(String.format("%s m/s", groupByDateTrackPojo.getMaximum_speed()));
+                avgSpeedView.setText(String.format("%s " + meterPerSec, groupByDateTrackPojo.getAverage_speed()));
+                maxSpeedView.setText(String.format("%s " + meterPerSec, groupByDateTrackPojo.getMaximum_speed()));
             }
         }
     }
