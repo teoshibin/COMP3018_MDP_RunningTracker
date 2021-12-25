@@ -32,7 +32,29 @@ Simple implementation of Android Running Tracker App
 - more database queries for different display
 - theme and settings
 
-## Implementation Components
+## Implementation
+
+### Folder Structure
+```
+.
+└── runningtracker/
+    ├── calculation/
+    ├── content_provider/
+    ├── model/
+    ├── service/
+    ├── view_model/
+    ├── view_helper/
+    └── view/
+```
+`calculation` contains plain calculations for other class   
+`content_provider` allow other application to integrate data with this application   
+`model` contains all smaller components that are required for constructing a database   
+`service` contains gps location listener service and callbacks interface   
+`view_model` view model for GUI state   
+`view_helper` contains adapter, decoration & animation stuff   
+`view` activities and fragments   
+
+### Components
 
 - MVVM achitecture (View, ViewModel, Model)
     - views, UI that interacts with viewmodels and services
