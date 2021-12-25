@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
@@ -28,7 +29,7 @@ public abstract class RTRoomDatabase extends RoomDatabase {
     public abstract TrackDao trackDao();
 
     // repo
-    private static volatile RTRoomDatabase INSTANCE;
+    private static volatile RTRoomDatabase Instance;
     private static final int NUMBER_OF_THREADS = 4;
     static final ExecutorService databaseWriteExecutor =
             Executors.newFixedThreadPool(NUMBER_OF_THREADS);
@@ -40,10 +41,10 @@ public abstract class RTRoomDatabase extends RoomDatabase {
      * @return The singleton instance of Running Tracker Room Database
      */
     public static RTRoomDatabase getDatabase(final Context context) {
-        if (INSTANCE == null) {
+        if (Instance == null) {
             synchronized (RTRoomDatabase.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(
+                if (Instance == null) {
+                    Instance = Room.databaseBuilder(
                             context.getApplicationContext(),
                             RTRoomDatabase.class, "track_database")
                             .fallbackToDestructiveMigration()
@@ -52,7 +53,7 @@ public abstract class RTRoomDatabase extends RoomDatabase {
                 }
             }
         }
-        return INSTANCE;
+        return Instance;
     }
 
     /**
@@ -69,11 +70,22 @@ public abstract class RTRoomDatabase extends RoomDatabase {
             // create database using non UI thread
             databaseWriteExecutor.execute(() -> {
 
-                TrackDao trackDao = INSTANCE.trackDao();
+                TrackDao trackDao = Instance.trackDao();
                 trackDao.deleteAll();
 
             });
         }
     };
+
+    /**
+     * Switches the internal implementation with an empty in-memory database.
+     *
+     * @param context The context.
+     */
+    @VisibleForTesting
+    public static void switchToInMemory(Context context) {
+        Instance = Room.inMemoryDatabaseBuilder(context.getApplicationContext(),
+                RTRoomDatabase.class).build();
+    }
 
 }

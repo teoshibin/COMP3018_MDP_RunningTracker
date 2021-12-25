@@ -319,7 +319,6 @@ public class TrackerService extends Service {
                         while(detecting && count > 0){
                             Thread.sleep(250);
                             count -= 1;
-                            Log.d(TAG, "run: " + count);
                         }
 
                         // if flip flop is not set to false by location listener then

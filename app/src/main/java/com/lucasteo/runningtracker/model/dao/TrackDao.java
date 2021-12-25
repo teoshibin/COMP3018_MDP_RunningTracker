@@ -18,8 +18,14 @@ public interface TrackDao {
 
     // standard
 
+    /**
+     * insert {@link Track} into database
+     *
+     * @param track input {@link Track}
+     * @return row id of inserted {@link Track}
+     */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(Track track);
+    long insert(Track track);
 
     @Query("DELETE FROM track_table")
     void deleteAll();
@@ -48,6 +54,29 @@ public interface TrackDao {
 
     @Query("SELECT * FROM track_table WHERE trackID = :id ORDER BY trackID ASC")
     Cursor getCursorTrackById(long id);
+
+    @Query("SELECT " +
+            "count(trackID) AS number_of_records, " +
+            "round(sum(distance),2) AS total_distance, " +
+            "round(avg(speed),2) AS average_speed, " +
+            "round(max(speed),2) AS maximum_speed, " +
+            "date(CAST(createdTime/1000 AS INTEGER), 'unixepoch') AS record_date " +
+            "FROM track_table " +
+            "GROUP BY record_date " +
+            "ORDER BY record_date ASC")
+    Cursor getCursorGroupByDateTracks();
+
+    @Query("SELECT " +
+            "count(trackID) AS number_of_records, " +
+            "round(sum(distance),2) AS total_distance, " +
+            "round(avg(speed),2) AS average_speed, " +
+            "round(max(speed),2) AS maximum_speed, " +
+            "date(CAST(createdTime/1000 AS INTEGER), 'unixepoch') AS record_date " +
+            "FROM track_table " +
+            "WHERE trackID = :id " +
+            "GROUP BY record_date " +
+            "ORDER BY record_date ASC")
+    Cursor getCursorGroupByDateTrackById(long id);
 
 }
 

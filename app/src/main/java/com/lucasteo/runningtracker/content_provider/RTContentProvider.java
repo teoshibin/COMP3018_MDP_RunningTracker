@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 
 import com.lucasteo.runningtracker.model.RTRoomDatabase;
 import com.lucasteo.runningtracker.model.dao.TrackDao;
+import com.lucasteo.runningtracker.model.entity.Track;
 
 public class RTContentProvider extends ContentProvider {
     // TODO declare provider in manifest
@@ -28,8 +29,8 @@ public class RTContentProvider extends ContentProvider {
         MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
         MATCHER.addURI(RTContract.AUTHORITY, RTContract.TRACK_TABLE, CODE_TRACK_DIR); // entire table
         MATCHER.addURI(RTContract.AUTHORITY, RTContract.TRACK_TABLE + "/#", CODE_TRACK_ITEM); // specific id
-        MATCHER.addURI(RTContract.AUTHORITY, RTContract.TABLE_GROUP_BY_DATE_TRACK, CODE_GROUP_BY_DATE_TRACK_DIR); // entire table
-        MATCHER.addURI(RTContract.AUTHORITY, RTContract.TABLE_GROUP_BY_DATE_TRACK + "/#", CODE_GROUP_BY_DATE_TRACK_ITEM); // specific id
+        MATCHER.addURI(RTContract.AUTHORITY, RTContract.GROUP_BY_DATE_TRACK_TABLE, CODE_GROUP_BY_DATE_TRACK_DIR); // entire table
+        MATCHER.addURI(RTContract.AUTHORITY, RTContract.GROUP_BY_DATE_TRACK_TABLE + "/#", CODE_GROUP_BY_DATE_TRACK_ITEM); // specific id
     }
 
     @Override
@@ -41,6 +42,7 @@ public class RTContentProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection,
                         @Nullable String[] selectionArgs, @Nullable String sortOrder) {
+        // TODO deal with each parameter
 
         final Context context = getContext();
 
@@ -54,16 +56,23 @@ public class RTContentProvider extends ContentProvider {
         // parse uri and do different types of queries based on code
         switch (MATCHER.match(uri)){
             case CODE_TRACK_DIR:
-                return trackDao.getCursorTracks();
+                cursor = trackDao.getCursorTracks();
+                break;
             case CODE_TRACK_ITEM:
-                return trackDao.getCursorTrackById(ContentUris.parseId(uri));
-            case CODE_GROUP_BY_DATE_TRACK_ITEM:
-                return null;
+                cursor = trackDao.getCursorTrackById(ContentUris.parseId(uri));
+                break;
             case CODE_GROUP_BY_DATE_TRACK_DIR:
-                return null;
+                cursor = trackDao.getCursorGroupByDateTracks();
+                break;
+            case CODE_GROUP_BY_DATE_TRACK_ITEM:
+                cursor = trackDao.getCursorGroupByDateTrackById(ContentUris.parseId(uri));
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
+
+        cursor.setNotificationUri(context.getContentResolver(), uri);
+        return cursor;
     }
 
     /**
@@ -75,28 +84,61 @@ public class RTContentProvider extends ContentProvider {
     @Nullable
     @Override
     public String getType(@NonNull Uri uri) {
-        String contentType;
-        if (uri.getLastPathSegment() == null) {
-            contentType = RTContract.CONTENT_TYPE_MULTIPLE;
-        } else {
-            contentType = RTContract.CONTENT_TYPE_SINGLE;
+        switch (MATCHER.match(uri)) {
+            case CODE_TRACK_DIR:
+                return RTContract.CONTENT_TYPE_MULTIPLE_TRACKS;
+            case CODE_TRACK_ITEM:
+                return RTContract.CONTENT_TYPE_SINGLE_TRACK;
+            case CODE_GROUP_BY_DATE_TRACK_DIR:
+                return RTContract.CONTENT_TYPE_MULTIPLE_GROUP_BY_DATE_TRACKS;
+            case CODE_GROUP_BY_DATE_TRACK_ITEM:
+                return RTContract.CONTENT_TYPE_SINGLE_GROUP_BY_DATE_TRACK;
+            default:
+                throw new IllegalArgumentException("Unknown URI: " + uri);
         }
-        return contentType;
     }
 
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues contentValues) {
-        return null;
+
+        final Context context = getContext();
+        if (context == null) {
+            return null;
+        }
+
+        switch (MATCHER.match(uri)) {
+            case CODE_TRACK_DIR:
+
+                TrackDao trackDao = RTRoomDatabase.getDatabase(context).trackDao();
+                final long id = trackDao.insert(Track.fromContentValues(contentValues));
+
+                context.getContentResolver().notifyChange(uri, null);
+                return ContentUris.withAppendedId(uri, id);
+
+            case CODE_GROUP_BY_DATE_TRACK_DIR:
+                throw new UnsupportedOperationException(
+                        "Invalid URI, \"" + RTContract.GROUP_BY_DATE_TRACK_TABLE +
+                        "\" is an virtual table queried from \"" +
+                        RTContract.TRACK_TABLE + "\", insert is not possible : " + uri);
+            case CODE_TRACK_ITEM:
+            case CODE_GROUP_BY_DATE_TRACK_ITEM:
+                throw new IllegalArgumentException("Invalid URI, cannot insert with URI containing ID: " + uri);
+            default:
+                throw new IllegalArgumentException("Unknown URI: " + uri);
+        }
+
     }
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String s, @Nullable String[] strings) {
-        return 0;
+        // other application shouldn't be deleting our data
+        throw new UnsupportedOperationException("Delete Operation is disabled");
     }
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String s, @Nullable String[] strings) {
-        return 0;
+        // update of track data is pointless, not even our application uses update
+        throw new UnsupportedOperationException("Update Operation is disabled");
     }
 }
