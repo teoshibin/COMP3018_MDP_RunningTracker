@@ -164,14 +164,21 @@ public class HomeFragment extends Fragment {
         serviceBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 // switch button display text and controlling service
                 MainActivity mainActivity = (MainActivity)requireActivity();
+                boolean success = false;
+
                 if (viewModel.getValueServiceStatus()){
                     mainActivity.stopTrackerService();
+                    success = true;
                 } else {
-                    mainActivity.runTrackerService();
+                    success = mainActivity.runTrackerService();
                 }
-                viewModel.toggleServiceStatus();
+
+                if (success){
+                    viewModel.toggleServiceStatus();
+                }
             }
         });
 

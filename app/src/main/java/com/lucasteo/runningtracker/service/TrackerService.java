@@ -1,5 +1,6 @@
 package com.lucasteo.runningtracker.service;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -8,6 +9,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -20,6 +22,7 @@ import android.os.RemoteCallbackList;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 
 import com.lucasteo.runningtracker.R;
 import com.lucasteo.runningtracker.calculation.SpeedStatus;
@@ -54,6 +57,7 @@ public class TrackerService extends Service {
     private LocationManager locationManager;
     private TrackerLocationListener locationListener;
     private ServiceStatus serviceStatus = ServiceStatus.STARTED;
+    private boolean interupted = false; // turn into true when user turn off gps
 
     // location calculation
     private Location prevLocation;
@@ -123,7 +127,7 @@ public class TrackerService extends Service {
         Log.d(TAG, "onUnbind: Tracker Service");
 
         // stop this service if it is not running on unbind
-        if(serviceStatus != ServiceStatus.JUST_STARTED && serviceStatus != ServiceStatus.RUNNING){
+        if (serviceStatus != ServiceStatus.JUST_STARTED && serviceStatus != ServiceStatus.RUNNING) {
             stopService();
         }
 
@@ -157,9 +161,9 @@ public class TrackerService extends Service {
         public void onLocationChanged(Location location) {
 
             // service is fully running then start storing data
-            if(serviceStatus == ServiceStatus.RUNNING){
+            if (serviceStatus == ServiceStatus.RUNNING) {
 
-                if (prevLocation != null){
+                if (prevLocation != null) {
                     distance = prevLocation.distanceTo(location);
                 }
 
@@ -182,9 +186,9 @@ public class TrackerService extends Service {
                         )
                 );
 
-            // ignore calculation and data storing for the first location
-            // as distance require 2 locations to be calculated at the beginning
-            } else if (serviceStatus == ServiceStatus.JUST_STARTED){
+                // ignore calculation and data storing for the first location
+                // as distance require 2 locations to be calculated at the beginning
+            } else if (serviceStatus == ServiceStatus.JUST_STARTED) {
                 serviceStatus = ServiceStatus.RUNNING;
             }
             prevLocation = location; // store current location as previous location
@@ -201,12 +205,19 @@ public class TrackerService extends Service {
         public void onProviderEnabled(String provider) {
             // the user enabled (for example) the GPS
             Log.d(TAG, "onProviderEnabled: ( Provider: " + provider + " )");
+            if (interupted && serviceStatus == ServiceStatus.PAUSED) {
+                startListening();
+            }
         }
 
         @Override
         public void onProviderDisabled(String provider) {
             // the user disabled (for example) the GPS
             Log.d(TAG, "onProviderDisabled: ( Provider: " + provider + " )");
+            if (isRunning()) {
+                stopListening();
+                interupted = true;
+            }
         }
 
     }
@@ -222,16 +233,19 @@ public class TrackerService extends Service {
         }
 
         // interact with service through binder
-        public void pauseTrackerService(){
+        public void pauseTrackerService() {
             stopListening();
         }
-        public void runTrackerService(){
+
+        public void runTrackerService() {
             startListening();
         }
-        public boolean getTrackerServiceIsRunning(){
+
+        public boolean getTrackerServiceIsRunning() {
             return isRunning();
         }
-        public boolean getTrackerServiceStopMoving(){
+
+        public boolean getTrackerServiceStopMoving() {
             return getStopMoving();
         }
 
@@ -240,6 +254,7 @@ public class TrackerService extends Service {
             this.callback = callback;
             remoteCallbackList.register(TrackerServiceBinder.this);
         }
+
         public void unregisterCallback(ICallback callback) {
             remoteCallbackList.unregister(TrackerServiceBinder.this);
         }
@@ -254,11 +269,20 @@ public class TrackerService extends Service {
      */
     public void doStopMovingEventCallback() {
         final int n = remoteCallbackList.beginBroadcast();
-        for (int i=0; i<n; i++) {
+        for (int i = 0; i < n; i++) {
             remoteCallbackList.getBroadcastItem(i).callback.onStopMovingUpdateEvent(stopMoving);
         }
         remoteCallbackList.finishBroadcast();
     }
+    public void doOnPermissionNotGrantedEventCallback() {
+        final int n = remoteCallbackList.beginBroadcast();
+        for (int i = 0; i < n; i++) {
+            remoteCallbackList.getBroadcastItem(i).callback.onPermissionNotGranted();
+        }
+        remoteCallbackList.finishBroadcast();
+    }
+
+
 
     // STOP MOVING DETECTION METHODS
 
@@ -266,10 +290,10 @@ public class TrackerService extends Service {
      * location listener uses this to reset the standing detection
      * and allow it to continue detecting if user stops moving
      */
-    private void resetStopMovingDetection(){
+    private void resetStopMovingDetection() {
         count = defaultCount;
         flipFlop = false;
-        if (stopMoving){
+        if (stopMoving) {
             stopMoving = false;
             doStopMovingEventCallback();
         }
@@ -278,7 +302,7 @@ public class TrackerService extends Service {
     /**
      * halt stop moving detection thread
      */
-    private void stopStopMovingDetection(){
+    private void stopStopMovingDetection() {
         detecting = false;
     }
 
@@ -287,12 +311,23 @@ public class TrackerService extends Service {
     /**
      * start running this service
      */
-    @SuppressLint("MissingPermission")
-    private void startListening(){
+    private void startListening() {
+
+        // if for some god knows what reason that this service is started without permission then do a callback back to GUI
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            doOnPermissionNotGrantedEventCallback();
+            return;
+        }
 
         // start the main part of this service
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationListener = new TrackerLocationListener();
+
+
+
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                 1, // minimum time interval between updates
                 1, // minimum distance between updates, in metres

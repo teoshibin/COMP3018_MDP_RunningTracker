@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.content.Context;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.lucasteo.runningtracker.R;
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         // request permission if needed
-        if (requestPermission()){
+        if (requestPermissions()){
             startTrackerService();
         }
 
@@ -108,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
      *
      * @return true when all permission is granted
      */
-    private boolean requestPermission(){
+    public boolean requestPermissions(){
 
         boolean allGranted = true;
 
@@ -126,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
      * @param permissions list of permissions
      * @return false when all permissions are given
      */
-    public static boolean notGrantedPermissions(Context context, String... permissions) {
+    private static boolean notGrantedPermissions(Context context, String... permissions) {
         if (context != null && permissions != null) {
             for (String permission : permissions) {
                 if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
@@ -173,10 +174,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * run service task
+     * run the started tracker service
+     *
+     * @return true is succesfully run the service else false as permission is not granted
      */
-    public void runTrackerService(){
-        trackerServiceBinder.runTrackerService();
+    public boolean runTrackerService(){
+        if (requestPermissions()){
+            trackerServiceBinder.runTrackerService();
+            return true;
+        } else {
+            Toast.makeText(this, "Permission Not Granted", Toast.LENGTH_LONG).show();
+        }
+        return false;
     }
 
     /**
@@ -191,12 +200,35 @@ public class MainActivity extends AppCompatActivity {
      */
     private final ICallback callback = new ICallback() {
 
+        /**
+         * tell the UI that user has stop moving
+         * the reason why this is required is because standing data is not saved as actual rows
+         * in database meaning cannot be observed directly from LiveData of the database
+         *
+         * @param value stop moving boolean
+         */
         @Override
         public void onStopMovingUpdateEvent(boolean value) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     viewModel.setValueStopMoving(value);
+                }
+            });
+        }
+
+        /**
+         * impossible to reach this part of the code as checking is always done in advance
+         * but who knows nothing is impossible in coding land
+         *
+         * service will cry for permission as permission is still not granted
+         */
+        @Override
+        public void onPermissionNotGranted() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    requestPermissions();
                 }
             });
         }

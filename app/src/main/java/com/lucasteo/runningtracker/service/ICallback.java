@@ -11,4 +11,9 @@ public interface ICallback {
      * @param value stop moving boolean
      */
     void onStopMovingUpdateEvent(boolean value);
+
+    /**
+     * called when permission needed in service is not granted
+     */
+    void onPermissionNotGranted();
 }
