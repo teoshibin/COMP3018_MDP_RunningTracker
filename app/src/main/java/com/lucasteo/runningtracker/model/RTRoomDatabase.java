@@ -17,7 +17,7 @@ import com.lucasteo.runningtracker.model.type_converter.DateTimeConverter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Track.class}, version = 4, exportSchema = false)
+@Database(entities = {Track.class}, version = 1, exportSchema = false)
 @TypeConverters({DateTimeConverter.class})
 public abstract class RTRoomDatabase extends RoomDatabase {
 
@@ -33,7 +33,13 @@ public abstract class RTRoomDatabase extends RoomDatabase {
     static final ExecutorService databaseWriteExecutor =
             Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
-    static RTRoomDatabase getDatabase(final Context context) {
+    /**
+     * Gets the singleton instance of Running Tracker Room Database
+     *
+     * @param context context
+     * @return The singleton instance of Running Tracker Room Database
+     */
+    public static RTRoomDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
             synchronized (RTRoomDatabase.class) {
                 if (INSTANCE == null) {

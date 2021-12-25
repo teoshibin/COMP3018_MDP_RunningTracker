@@ -353,6 +353,7 @@ public class TrackerService extends Service {
         }
         locationListener = null;
         locationManager = null;
+        prevLocation = null;
 
         serviceStatus = ServiceStatus.PAUSED;
         speedStatus = null;

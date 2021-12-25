@@ -1,5 +1,7 @@
 package com.lucasteo.runningtracker.model.dao;
 
+import android.database.Cursor;
+
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
@@ -38,6 +40,14 @@ public interface TrackDao {
             "GROUP BY record_date " +
             "ORDER BY record_date DESC")
     LiveData<List<GroupByDateTrackPojo>> getGroupByDateTracks();
+
+    // cursor for content provider
+
+    @Query("SELECT * FROM track_table ORDER BY trackID ASC")
+    Cursor getCursorTracks();
+
+    @Query("SELECT * FROM track_table WHERE trackID = :id ORDER BY trackID ASC")
+    Cursor getCursorTrackById(long id);
 
 }
 

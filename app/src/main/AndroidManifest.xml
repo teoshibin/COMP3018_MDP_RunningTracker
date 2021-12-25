@@ -16,12 +16,18 @@
         <activity
             android:name=".view.MainActivity"
             android:exported="true"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider
+            android:authorities="com.lucasteo.runningtracker.content_provider.RTContentProvider"
+            android:name="com.lucasteo.runningtracker.content_provider.RTContentProvider"
+            android:multiprocess="true"
+            android:exported="true"/>
     </application>
 </manifest>
