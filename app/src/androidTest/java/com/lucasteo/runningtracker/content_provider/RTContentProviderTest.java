@@ -14,16 +14,12 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
-import com.lucasteo.runningtracker.calculation.SpeedStatus;
 import com.lucasteo.runningtracker.model.RTRoomDatabase;
 import com.lucasteo.runningtracker.model.entity.Track;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.Date;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -62,12 +58,12 @@ public class RTContentProviderTest {
         assertThat(cursor, notNullValue());
         assertThat(cursor.getCount(), is(1));
         assertThat(cursor.moveToFirst(), is(true));
-        assertThat(cursor.getDouble(cursor.getColumnIndexOrThrow(RTContract.COLUMN_LATITUDE)), is(-1.1));
-        assertThat(cursor.getDouble(cursor.getColumnIndexOrThrow(RTContract.COLUMN_LONGITUDE)), is(-2.2));
-        assertThat(cursor.getDouble(cursor.getColumnIndexOrThrow(RTContract.COLUMN_DISTANCE)), is(3.3));
-        assertThat(cursor.getDouble(cursor.getColumnIndexOrThrow(RTContract.COLUMN_ALTITUDE)), is(-4.4));
-        assertThat(cursor.getDouble(cursor.getColumnIndexOrThrow(RTContract.COLUMN_SPEED)), is(5.5));
-        assertThat(cursor.getString(cursor.getColumnIndexOrThrow(RTContract.COLUMN_ACTIVITY)), is(RTContract.ACTIVITY_RUNNING));
+        assertThat(cursor.getDouble(cursor.getColumnIndexOrThrow(RTContract.COLUMN_TRACK_LATITUDE)), is(-1.1));
+        assertThat(cursor.getDouble(cursor.getColumnIndexOrThrow(RTContract.COLUMN_TRACK_LONGITUDE)), is(-2.2));
+        assertThat(cursor.getDouble(cursor.getColumnIndexOrThrow(RTContract.COLUMN_TRACK_DISTANCE)), is(3.3));
+        assertThat(cursor.getDouble(cursor.getColumnIndexOrThrow(RTContract.COLUMN_TRACK_ALTITUDE)), is(-4.4));
+        assertThat(cursor.getDouble(cursor.getColumnIndexOrThrow(RTContract.COLUMN_TRACK_SPEED)), is(5.5));
+        assertThat(cursor.getString(cursor.getColumnIndexOrThrow(RTContract.COLUMN_TRACK_ACTIVITY)), is(RTContract.ACTIVITY_RUNNING));
 
         cursor.close();
     }
@@ -77,12 +73,12 @@ public class RTContentProviderTest {
             double altitude, double speed, String activity)
     {
         final ContentValues values = new ContentValues();
-        values.put(RTContract.COLUMN_LATITUDE, latitude);
-        values.put(RTContract.COLUMN_LONGITUDE, longitude);
-        values.put(RTContract.COLUMN_DISTANCE, distance);
-        values.put(RTContract.COLUMN_ALTITUDE, altitude);
-        values.put(RTContract.COLUMN_SPEED, speed);
-        values.put(RTContract.COLUMN_ACTIVITY, activity);
+        values.put(RTContract.COLUMN_TRACK_LATITUDE, latitude);
+        values.put(RTContract.COLUMN_TRACK_LONGITUDE, longitude);
+        values.put(RTContract.COLUMN_TRACK_DISTANCE, distance);
+        values.put(RTContract.COLUMN_TRACK_ALTITUDE, altitude);
+        values.put(RTContract.COLUMN_TRACK_SPEED, speed);
+        values.put(RTContract.COLUMN_TRACK_ACTIVITY, activity);
         return values;
     }
 }

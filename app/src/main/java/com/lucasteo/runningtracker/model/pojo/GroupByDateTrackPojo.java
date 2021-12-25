@@ -5,6 +5,13 @@ package com.lucasteo.runningtracker.model.pojo;
  * storing queried data into this object
  */
 public class GroupByDateTrackPojo {
+
+    public static final String COLUMN_NUMBER_OF_RECORDS = "number_of_records";
+    public static final String COLUMN_TOTAL_DISTANCE = "total_distance";
+    public static final String COLUMN_AVERAGE_SPEED = "average_speed";
+    public static final String COLUMN_MAXIMUM_SPEED = "maximum_speed";
+    public static final String COLUMN_RECORD_DATE = "record_date";
+
     private int number_of_records;
     private double total_distance;
     private double average_speed;

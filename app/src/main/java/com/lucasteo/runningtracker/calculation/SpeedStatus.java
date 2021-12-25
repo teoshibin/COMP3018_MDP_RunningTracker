@@ -89,9 +89,6 @@ public enum SpeedStatus {
         if (absSpeed >= WALKING.getScaledThreshold()){
             return WALKING;
         }
-//        if (absSpeed >= STANDING.getScaledThreshold()){
-//            return STANDING;
-//        }
         return STANDING;
     }
 }

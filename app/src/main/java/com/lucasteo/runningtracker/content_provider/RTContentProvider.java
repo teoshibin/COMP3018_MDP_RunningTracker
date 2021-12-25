@@ -15,21 +15,27 @@ import com.lucasteo.runningtracker.model.RTRoomDatabase;
 import com.lucasteo.runningtracker.model.dao.TrackDao;
 import com.lucasteo.runningtracker.model.entity.Track;
 
+/**
+ * content provider allowing database access for external application
+ */
 public class RTContentProvider extends ContentProvider {
 
+    // string uri matcher
     private static final UriMatcher MATCHER;
 
+    // matched code for uri matcher
     private static final int CODE_TRACK_DIR = 0;
     private static final int CODE_TRACK_ITEM = 1;
     private static final int CODE_GROUP_BY_DATE_TRACK_DIR = 10;
     private static final int CODE_GROUP_BY_DATE_TRACK_ITEM = 11;
 
+    // define uri to it's corresponding code
     static {
         MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
-        MATCHER.addURI(RTContract.AUTHORITY, RTContract.TRACK_TABLE, CODE_TRACK_DIR); // entire table
-        MATCHER.addURI(RTContract.AUTHORITY, RTContract.TRACK_TABLE + "/#", CODE_TRACK_ITEM); // specific id
-        MATCHER.addURI(RTContract.AUTHORITY, RTContract.GROUP_BY_DATE_TRACK_TABLE, CODE_GROUP_BY_DATE_TRACK_DIR); // entire table
-        MATCHER.addURI(RTContract.AUTHORITY, RTContract.GROUP_BY_DATE_TRACK_TABLE + "/#", CODE_GROUP_BY_DATE_TRACK_ITEM); // specific id
+        MATCHER.addURI(RTContract.AUTHORITY, RTContract.TABLE_TRACK, CODE_TRACK_DIR); // entire table
+        MATCHER.addURI(RTContract.AUTHORITY, RTContract.TABLE_TRACK + "/#", CODE_TRACK_ITEM); // specific id
+        MATCHER.addURI(RTContract.AUTHORITY, RTContract.TABLE_GROUP_BY_DATE_TRACK, CODE_GROUP_BY_DATE_TRACK_DIR); // entire table
+        MATCHER.addURI(RTContract.AUTHORITY, RTContract.TABLE_GROUP_BY_DATE_TRACK + "/#", CODE_GROUP_BY_DATE_TRACK_ITEM); // specific id
     }
 
     @Override
@@ -37,6 +43,16 @@ public class RTContentProvider extends ContentProvider {
         return true;
     }
 
+    /**
+     * query method of content provider
+     *
+     * @param uri uri
+     * @param projection projection containing column names
+     * @param selection selection string
+     * @param selectionArgs selection arguments
+     * @param sortOrder sort order
+     * @return cursor pointing our database
+     */
     @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection,
@@ -100,6 +116,8 @@ public class RTContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues contentValues) {
+        // other application shouldn't be inserting random data into our database but this is written
+        // just for demonstration
 
         final Context context = getContext();
         if (context == null) {
@@ -117,9 +135,9 @@ public class RTContentProvider extends ContentProvider {
 
             case CODE_GROUP_BY_DATE_TRACK_DIR:
                 throw new UnsupportedOperationException(
-                        "Invalid URI, \"" + RTContract.GROUP_BY_DATE_TRACK_TABLE +
+                        "Invalid URI, \"" + RTContract.TABLE_GROUP_BY_DATE_TRACK +
                         "\" is an virtual table queried from \"" +
-                        RTContract.TRACK_TABLE + "\", insert is not possible : " + uri);
+                        RTContract.TABLE_TRACK + "\", insert is not possible : " + uri);
             case CODE_TRACK_ITEM:
             case CODE_GROUP_BY_DATE_TRACK_ITEM:
                 throw new IllegalArgumentException("Invalid URI, cannot insert with URI containing ID: " + uri);
