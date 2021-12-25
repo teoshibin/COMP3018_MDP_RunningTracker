@@ -21,8 +21,11 @@ import java.util.List;
  */
 public class MainViewModel extends AndroidViewModel {
 
-    //region VARIABLES
-    //--------------------------------------------------------------------------------------------//
+    //==============================================================================================
+    // variables
+    //==============================================================================================
+
+    //region
 
     // save instance state
     SavedStateHandle savedState;
@@ -44,11 +47,13 @@ public class MainViewModel extends AndroidViewModel {
     private MutableLiveData<Boolean> serviceStatus;
     private MutableLiveData<Boolean> stopMoving;
 
-    //--------------------------------------------------------------------------------------------//
     //endregion
 
-    //region MAIN CONSTRUCTOR AND METHODS
-    //--------------------------------------------------------------------------------------------//
+    //==============================================================================================
+    // Main constructor and methods
+    //==============================================================================================
+
+    //region
 
     /**
      * main view model constructor
@@ -83,11 +88,13 @@ public class MainViewModel extends AndroidViewModel {
 
     }
 
-    //--------------------------------------------------------------------------------------------//
     //endregion
 
-    //region interaction between vm and repo
-    //--------------------------------------------------------------------------------------------//
+    //==============================================================================================
+    // interaction between view model and repository
+    //==============================================================================================
+
+    //region
 
     public LiveData<List<Track>> getAllTracks() {
         return allTracks;
@@ -105,11 +112,13 @@ public class MainViewModel extends AndroidViewModel {
         repository.deleteAll();
     }
 
-    //--------------------------------------------------------------------------------------------//
     //endregion
 
-    //region VARIABLES STATES GETTER SETTER
-    //--------------------------------------------------------------------------------------------//
+    //==============================================================================================
+    // ui states getter and setter
+    //==============================================================================================
+
+    //region
 
     // service status getter setter
 
@@ -150,7 +159,6 @@ public class MainViewModel extends AndroidViewModel {
         return stopMoving.getValue();
     }
 
-    //--------------------------------------------------------------------------------------------//
     //endregion
 
 }

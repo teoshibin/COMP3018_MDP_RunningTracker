@@ -38,8 +38,11 @@ import java.util.Date;
  */
 public class TrackerService extends Service {
 
-    //region VARIABLES
-    //--------------------------------------------------------------------------------------------//
+    //==============================================================================================
+    // variables
+    //==============================================================================================
+
+    //region
 
     // debug log
     private static final String TAG = "runningTracker";
@@ -76,11 +79,13 @@ public class TrackerService extends Service {
     // actual output of standing detection
     private boolean stopMoving = false;
 
-    //--------------------------------------------------------------------------------------------//
     //endregion
 
-    //region LIFE CYCLE METHODS
-    //--------------------------------------------------------------------------------------------//
+    //==============================================================================================
+    // life cycle
+    //==============================================================================================
+
+    //region
 
     @Override
     public void onCreate() {
@@ -134,11 +139,13 @@ public class TrackerService extends Service {
         return true; // to trigger onRebind
     }
 
-    //--------------------------------------------------------------------------------------------//
     //endregion
 
-    //region CALLBACKS & MAIN SERVICE
-    //--------------------------------------------------------------------------------------------//
+    //==============================================================================================
+    // callbacks and main service
+    //==============================================================================================
+
+    //region
 
     /**
      * define this service status
@@ -274,6 +281,7 @@ public class TrackerService extends Service {
         }
         remoteCallbackList.finishBroadcast();
     }
+
     public void doOnPermissionNotGrantedEventCallback() {
         final int n = remoteCallbackList.beginBroadcast();
         for (int i = 0; i < n; i++) {
@@ -281,8 +289,6 @@ public class TrackerService extends Service {
         }
         remoteCallbackList.finishBroadcast();
     }
-
-
 
     // STOP MOVING DETECTION METHODS
 
@@ -426,11 +432,13 @@ public class TrackerService extends Service {
         return stopMoving;
     }
 
-    //--------------------------------------------------------------------------------------------//
     //endregion
 
-    //region NOTIFICATIONS
-    //--------------------------------------------------------------------------------------------//
+    //==============================================================================================
+    // notification
+    //==============================================================================================
+
+    //region
 
     /**
      * create foreground notification
@@ -474,7 +482,6 @@ public class TrackerService extends Service {
         stopForeground(true);
     }
 
-    //--------------------------------------------------------------------------------------------//
     //endregion
 
 }
