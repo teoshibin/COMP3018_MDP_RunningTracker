@@ -16,6 +16,7 @@ Simple implementation of Android Running Tracker App
 
 ## Installation
 - Run with emulator
+    - gpx files for gps route simulation on emulator can be found [here](routes)
 - Install [APK](https://github.com/teoshibin/COMP3018_MDP_RunningTracker/releases/latest)
 
 ## Features
