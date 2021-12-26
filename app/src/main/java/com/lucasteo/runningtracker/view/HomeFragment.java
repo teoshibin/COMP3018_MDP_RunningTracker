@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -225,6 +226,9 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
+                // this is required to fix a bug where listener is not listening properly on first install
+                sharedPref.registerOnSharedPreferenceChangeListener(sharedPrefListener);
+
                 String text = String.valueOf(goalDialogEditText.getText());
 
                 // if not empty string
@@ -236,7 +240,7 @@ public class HomeFragment extends Fragment {
                     if (value >= DEFAULT_LOWEST_GOAL_VALUE){
 
                         sharedPrefEditor.putInt(SHARED_PREF_KEY_GOAL_VALUE, value);
-                        sharedPrefEditor.apply();
+                        sharedPrefEditor.commit();
                         goalDialog.dismiss();
                         goalDialogEditText.setText("");
 
@@ -286,6 +290,12 @@ public class HomeFragment extends Fragment {
 
         // progress bar & progress text goal value
         int goalValue = sharedPref.getInt(SHARED_PREF_KEY_GOAL_VALUE, DEFAULT_GOAL_VALUE);
+        // init if not exist
+//        if (!sharedPref.contains(SHARED_PREF_KEY_GOAL_VALUE)){
+//            sharedPrefEditor.putInt(SHARED_PREF_KEY_GOAL_VALUE, DEFAULT_GOAL_VALUE);
+//            sharedPrefEditor.commit();
+//            Log.d("tag", "onCreate: set value");
+//        }
         updateGoalTextView(view, goalValue);
         progressBar.setMax(goalValue);
         progressBar.setMin(0);
@@ -324,8 +334,10 @@ public class HomeFragment extends Fragment {
                     updateGoalTextView(view, goalValue);
                     progressBar.setMax(goalValue);
                 }
+                Log.d("tag", "onSharedPreferenceChanged: ");
             }
         };
+        // for some reason this listener assignment doesn't work sometimes
         sharedPref.registerOnSharedPreferenceChangeListener(sharedPrefListener);
 
         // observe service status to change UI
