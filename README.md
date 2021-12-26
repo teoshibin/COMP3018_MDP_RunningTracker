@@ -16,7 +16,7 @@ Simple implementation of Android Running Tracker App
 
 ## Installation
 - Run with emulator
-- Install [APK](app\build\outputs\apk\debug\app-debug.apk)
+- Install [APK](app\build\outputs\apk\debug)
 
 ## Features
 - track current movement (standing, walking, jogging, running, cycling, driving) with gps enabled
